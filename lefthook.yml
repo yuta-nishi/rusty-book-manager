@@ -1,0 +1,9 @@
+pre-commit:
+  parallel: true
+  commands:
+    test:
+      run: makers test
+    clippy:
+      run: makers clippy -- -Dwarnings
+    fmt:
+      run: makers fmt -- --check
