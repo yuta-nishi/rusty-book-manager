@@ -38,7 +38,7 @@ JAEGER_PORT = "6831"
 ## Environment setup
 
 [tasks.before-build]
-run_task = [{ name = ["compose-up-db", "compose-up-redis", "migrate"] }]
+run_task = [{ name = ["compose-up-db", "compose-up-redis"] }]
 
 [tasks.compose]
 extend = "set-env-docker"
@@ -153,13 +153,11 @@ until sqlx migrate run --source adapter/migrations; do
 done
 """
 
-
 [tasks.sqlx]
 extend = "set-env-local"
 install_crate = { crate_name = "sqlx-cli", binary = "sqlx", test_arg = "--help" }
 command = "sqlx"
 args = ["${@}", "--source", "adapter/migrations"]
-
 
 [tasks.psql]
 extend = "set-env-local"
