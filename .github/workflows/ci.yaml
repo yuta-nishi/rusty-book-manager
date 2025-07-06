@@ -23,10 +23,10 @@ jobs:
         with:
           tool: nextest,cargo-make
       - name: Tests compile
-        run: makers test-ci --no-run --locked
+        run: cargo make test-ci --no-run --locked
       - name: Test
-        run: makers test-ci
+        run: cargo make test-ci
       - name: Clippy
-        run: makers clippy-ci -- -Dwarnings
+        run: cargo make clippy-ci -- -Dwarnings
       - name: Rustfmt
-        run: makers fmt -- --check
+        run: cargo make fmt -- --check
