@@ -1,0 +1,39 @@
+table books {
+  id uuid [pk]
+  title text
+  authors text
+  isbn text
+  description text
+  user_id uuid [ref: > users.id]
+  created_at timestamp
+  updated_at timestamp
+}
+
+table users {
+  id uuid [pk]
+  name text
+  email text
+  role_id uuid [ref: > roles.id]
+  created_at timestamp
+  updated_at timestamp
+}
+
+table roles {
+  id uuid [pk]
+  name text
+}
+
+table checkouts {
+  id uuid [pk]
+  book_id uuid [ref: > books.id]
+  user_id uuid [ref: > users.id]
+  checked_out_at timestamp
+}
+
+table returned_checkouts {
+  id uuid [pk]
+  book_id uuid [ref: > books.id]
+  user_id uuid [ref: > users.id]
+  checked_out_at timestamp
+  returned_at timestamp
+}
