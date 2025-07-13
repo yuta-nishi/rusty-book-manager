@@ -33,6 +33,7 @@ sqlx = { version = "0.8.6", features = [
 ] }
 tokio = { version = "1.46.1", features = ["full"] }
 rstest = "0.25.0"
+derive-new = "0.7.0"
 
 [dependencies]
 adapter.workspace = true

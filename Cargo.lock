@@ -7,6 +7,8 @@ name = "adapter"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-trait",
+ "derive-new",
  "kernel",
  "shared",
  "sqlx",
@@ -319,6 +321,17 @@ dependencies = [
  "const-oid",
  "pem-rfc7468",
  "zeroize",
+]
+
+[[package]]
+name = "derive-new"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2cdc8d50f426189eef89dac62fabfa0abb27d5cc008f25bf4156a0203325becc"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -1157,6 +1170,10 @@ dependencies = [
 [[package]]
 name = "registry"
 version = "0.1.0"
+dependencies = [
+ "adapter",
+ "kernel",
+]
 
 [[package]]
 name = "rsa"
