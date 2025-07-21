@@ -59,6 +59,10 @@ checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
 [[package]]
 name = "api"
 version = "0.1.0"
+dependencies = [
+ "axum",
+ "registry",
+]
 
 [[package]]
 name = "async-trait"
@@ -1209,7 +1213,7 @@ checksum = "8a0d197bd2c9dc6e53b84da9556a69ba4cdfab8619eb41a8bd1cc2027a0f6b1d"
 
 [[package]]
 name = "rusty-book-manager"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "adapter",
  "anyhow",
