@@ -27,3 +27,11 @@ async fn bootstrap() -> Result<()> {
 
     axum::serve(listener, app).await.map_err(Error::from)
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn dummy_test() {
+        // Dummy test placeholder
+    }
+}
