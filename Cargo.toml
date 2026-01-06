@@ -21,9 +21,9 @@ api = { path = "./api" }
 kernel = { path = "./kernel" }
 registry = { path = "./registry" }
 shared = { path = "./shared" }
-async-trait = "0.1.88"
-anyhow = "1.0.98"
-axum = { version = "0.8.4", features = ["macros"] }
+async-trait = "0.1.89"
+anyhow = "1.0.100"
+axum = { version = "0.8.8", features = ["macros"] }
 sqlx = { version = "0.8.6", features = [
   "runtime-tokio",
   "uuid",
@@ -32,8 +32,8 @@ sqlx = { version = "0.8.6", features = [
   "postgres",
   "migrate",
 ] }
-tokio = { version = "1.46.1", features = ["full"] }
-rstest = "0.25.0"
+tokio = { version = "1.49.0", features = ["full"] }
+rstest = "0.26.1"
 derive-new = "0.7.0"
 
 [dependencies]
