@@ -38,7 +38,7 @@ JAEGER_PORT = "6831"
 ## Environment setup
 
 [tasks.before-build]
-run_task = [{ name = ["compose-up-db", "compose-up-redis"] }]
+run_task = [{ name = ["compose-up-db", "migrate", "compose-up-redis"] }]
 
 [tasks.compose]
 extend = "set-env-docker"
