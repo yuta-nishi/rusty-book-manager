@@ -16,14 +16,12 @@ publish = false
 license = "MIT"
 
 [workspace.dependencies]
-adapter = { path = "./adapter" }
-api = { path = "./api" }
-kernel = { path = "./kernel" }
-registry = { path = "./registry" }
-shared = { path = "./shared" }
 async-trait = "0.1.89"
 anyhow = "1.0.100"
 axum = { version = "0.8.8", features = ["macros"] }
+derive-new = "0.7.0"
+rstest = "0.26.1"
+serde = { version = "1.0.228", features = ["derive"] }
 sqlx = { version = "0.8.6", features = [
   "runtime-tokio",
   "uuid",
@@ -32,17 +30,24 @@ sqlx = { version = "0.8.6", features = [
   "postgres",
   "migrate",
 ] }
+thiserror = "2.0.17"
 tokio = { version = "1.49.0", features = ["full"] }
-rstest = "0.26.1"
-derive-new = "0.7.0"
+uuid = { version = "1.19.0", features = ["v4", "serde"] }
+
+adapter = { path = "./adapter" }
+api = { path = "./api" }
+kernel = { path = "./kernel" }
+registry = { path = "./registry" }
+shared = { path = "./shared" }
 
 [dependencies]
+anyhow.workspace = true
+axum.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+
 adapter.workspace = true
 api.workspace = true
 kernel.workspace = true
 registry.workspace = true
 shared.workspace = true
-anyhow.workspace = true
-axum.workspace = true
-sqlx.workspace = true
-tokio.workspace = true
