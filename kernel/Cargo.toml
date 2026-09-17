@@ -6,6 +6,9 @@ edition = "2024"
 [dependencies]
 anyhow.workspace = true
 async-trait.workspace = true
+derive-new.workspace = true
+serde.workspace = true
+sqlx.workspace = true
 uuid.workspace = true
 
 shared.workspace = true
