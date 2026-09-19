@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use kernel::model::book::{Book, event::CreateBook};
-use uuid::Uuid;
+use kernel::model::{
+    book::{Book, event::CreateBook},
+    id::BookId,
+};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -32,7 +34,7 @@ impl From<CreateBookRequest> for CreateBook {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BookResponse {
-    pub id: Uuid,
+    pub id: BookId,
     pub title: String,
     pub author: String,
     pub isbn: String,

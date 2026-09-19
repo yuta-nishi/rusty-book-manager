@@ -1,10 +1,12 @@
 use async_trait::async_trait;
 use derive_new::new;
-use uuid::Uuid;
 
 use crate::database::{ConnectionPool, model::book::BookRow};
 use kernel::{
-    model::book::{Book, event::CreateBook},
+    model::{
+        book::{Book, event::CreateBook},
+        id::BookId,
+    },
     repository::book::BookRepository,
 };
 use shared::error::{AppError, AppResult};
@@ -55,7 +57,7 @@ impl BookRepository for BookRepositoryImpl {
         Ok(rows.into_iter().map(Book::from).collect())
     }
 
-    async fn find_by_id(&self, book_id: Uuid) -> AppResult<Option<Book>> {
+    async fn find_by_id(&self, book_id: BookId) -> AppResult<Option<Book>> {
         let row: Option<BookRow> = sqlx::query_as!(
             BookRow,
             r#"
@@ -68,7 +70,7 @@ impl BookRepository for BookRepositoryImpl {
                 FROM books
                 WHERE book_id = $1
             "#,
-            book_id
+            book_id as _
         )
         .fetch_optional(self.db.inner_ref())
         .await
