@@ -19,7 +19,10 @@ license = "MIT"
 async-trait = "0.1.89"
 anyhow = "1.0.100"
 axum = { version = "0.8.8", features = ["macros"] }
+bcrypt = "0.19.3"
 derive-new = "0.7.0"
+garde = { version = "0.23.0", features = ["derive", "email"] }
+redis = "1.7.0"
 rstest = "0.26.1"
 serde = { version = "1.0.228", features = ["derive"] }
 sqlx = { version = "0.8.6", features = [
@@ -32,6 +35,10 @@ sqlx = { version = "0.8.6", features = [
 ] }
 thiserror = "2.0.17"
 tokio = { version = "1.49.0", features = ["full"] }
+strum = { version = "0.28.0", features = ["derive"] }
+tower-http = { version = "0.7.1", features = ["trace"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
 uuid = { version = "1.19.0", features = ["v4", "serde"] }
 
 adapter = { path = "./adapter" }
@@ -45,6 +52,9 @@ anyhow.workspace = true
 axum.workspace = true
 sqlx.workspace = true
 tokio.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
 
 adapter.workspace = true
 api.workspace = true
