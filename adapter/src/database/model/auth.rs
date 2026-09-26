@@ -2,7 +2,7 @@ use shared::error::{AppError, AppResult};
 use std::str::FromStr;
 
 use kernel::model::{
-    auth::{event::CreateToken, AccessToken},
+    auth::{AccessToken, event::CreateToken},
     id::UserId,
 };
 
@@ -59,9 +59,9 @@ impl TryFrom<String> for AuthorizedUserId {
     type Error = AppError;
 
     fn try_from(s: String) -> AppResult<Self> {
-        Ok(Self(
-            UserId::from_str(&s).map_err(|e| AppError::ConversionEntityError(e.to_string()))?,
-        ))
+        Ok(Self(UserId::from_str(&s).map_err(|e| {
+            AppError::ConversionEntityError(e.to_string())
+        })?))
     }
 }
 

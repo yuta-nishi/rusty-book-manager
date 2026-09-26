@@ -4,8 +4,8 @@ use derive_new::new;
 use kernel::model::id::UserId;
 use kernel::model::role::Role;
 use kernel::model::user::{
-    event::{CreateUser, DeleteUser, UpdateUserPassword, UpdateUserRole},
     User,
+    event::{CreateUser, DeleteUser, UpdateUserPassword, UpdateUserRole},
 };
 use kernel::repository::user::UserRepository;
 use shared::error::{AppError, AppResult};
@@ -17,7 +17,10 @@ pub struct UserRepositoryImpl {
 
 #[async_trait]
 impl UserRepository for UserRepositoryImpl {
-    async fn find_current_user(&self, current_user_id: UserId) -> AppResult<Option<User>> {
+    async fn find_current_user(
+        &self,
+        current_user_id: UserId,
+    ) -> AppResult<Option<User>> {
         let row = sqlx::query_as!(
             UserRow,
             r#"

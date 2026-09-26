@@ -1,5 +1,5 @@
 use crate::model::{
-    auth::{event::CreateToken, AccessToken},
+    auth::{AccessToken, event::CreateToken},
     id::UserId,
 };
 use async_trait::async_trait;
