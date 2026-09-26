@@ -1,0 +1,119 @@
+[env]
+# docker compose 用
+HOST = "0.0.0.0"
+PORT = "8080"
+DATABASE_PORT_OUTER = "5432"
+DATABASE_PORT_INNER = "5432"
+REDIS_PORT_OUTER = "6379"
+REDIS_PORT_INNER = "6379"
+JAEGER_HOST = "localhost"
+JAEGER_PORT = "6831"
+
+# アプリ (AppConfig) 用
+DATABASE_HOST = "localhost"
+DATABASE_PORT = "5432"
+DATABASE_USERNAME = "app"
+DATABASE_PASSWORD = "passwd"
+DATABASE_NAME = "app"
+DATABASE_URL = "postgres://app:passwd@localhost:5432/app"
+REDIS_HOST = "localhost"
+REDIS_PORT = "6379"
+AUTH_TOKEN_TTL = "86400"
+
+# psql (libpq) 用
+PGHOST = "localhost"
+PGPORT = "5432"
+PGUSER = "app"
+PGPASSWORD = "passwd"
+PGDATABASE = "app"
+
+[tasks.up]
+description = "Start PostgreSQL and Redis"
+run = "docker compose up -d postgres redis"
+
+[tasks.down]
+description = "Stop containers"
+run = "docker compose down"
+
+[tasks.reset]
+description = "Remove containers and volumes"
+run = "docker compose down -v"
+
+[tasks.logs]
+description = "Follow container logs"
+run = "docker compose logs -f"
+
+[tasks.build]
+description = "Build"
+run = "cargo build"
+
+[tasks.check]
+description = "Type check"
+run = "cargo check --all --all-targets"
+
+[tasks.migrate]
+description = "Apply database migrations (waits for PostgreSQL)"
+run = """
+until sqlx migrate run --source adapter/migrations; do
+  sleep 1
+done
+"""
+
+[tasks.seed]
+description = "Insert initial data"
+run = "psql \"$DATABASE_URL\" -f data/initial_setup.sql"
+
+[tasks.run]
+description = "Start PostgreSQL, migrate, then run the app"
+depends = ["up", "migrate"]
+run = "cargo run"
+
+[tasks.test]
+description = "Run tests"
+run = "cargo nextest run --workspace --status-level all --test-threads=1 --no-tests=pass"
+
+[tasks.fmt]
+description = "Format"
+run = "cargo fmt --all"
+
+[tasks.fmt-check]
+description = "Check formatting"
+run = "cargo fmt --all -- --check"
+
+[tasks.clippy]
+description = "Lint"
+run = "cargo clippy --all --all-targets"
+
+[tasks.lint]
+description = "Lint with warnings denied"
+run = "cargo clippy --all --all-targets -- -D warnings"
+
+[tasks.ci]
+description = "Run all CI checks"
+run = [
+  { task = "up" },
+  { task = "migrate" },
+  { task = "fmt-check" },
+  { task = "lint" },
+  { task = "test" },
+]
+
+[tasks.db]
+description = "Open psql"
+run = "psql"
+
+[tasks.redis]
+description = "Open redis-cli"
+run = "redis-cli"
+
+[tasks.create-hash]
+description = "Generate a bcrypt hash for a password"
+run = "rust-script scripts/create-hash.rs"
+
+[tasks.actions-lint]
+description = "Lint GitHub Actions workflows"
+run = ["actionlint", "zizmor .github/workflows", "pinact run --check"]
+
+[tasks.pinact]
+description = "Pin and update GitHub Actions to latest"
+run = "pinact run --update"

@@ -1,30 +1,31 @@
 name: CI for book
 on:
   push:
-    branches: [main]
+    branches: main
   pull_request:
     paths-ignore:
       - "README.md"
       - "frontend/**"
+
+permissions:
+  contents: read
 
 jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-      - name: Install Rust toolchain
-        run: |
-          rustup toolchain install stable
-      - name: Install cargo-related tools
-        uses: taiki-e/install-action@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          tool: nextest,cargo-make
-      - name: Test
-        run: cargo make test-ci
-      - name: Clippy
-        run: cargo make clippy-ci -- -Dwarnings
-      - name: Rustfmt
-        run: cargo make fmt -- --check
+          persist-credentials: false
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      - name: Install Rust toolchain
+        run: rustup toolchain install stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 # v2.87.20
+        with:
+          tool: nextest
+      - name: Install sqlx-cli
+        run: cargo install sqlx-cli --no-default-features --features rustls,postgres --locked
+      - name: Run checks
+        run: mise run ci
