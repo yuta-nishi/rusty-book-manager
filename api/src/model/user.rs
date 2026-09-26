@@ -10,8 +10,11 @@ use kernel::model::{
 };
 use serde::{Deserialize, Serialize};
 use strum::VariantNames;
+#[cfg(debug_assertions)]
+use utoipa::ToSchema;
 
 #[derive(Serialize, Deserialize, VariantNames)]
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 #[strum(serialize_all = "kebab-case")]
 pub enum RoleName {
     Admin,
@@ -37,12 +40,14 @@ impl From<RoleName> for Role {
 }
 
 #[derive(Serialize, Deserialize)]
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct UsersResponse {
     pub items: Vec<UserResponse>,
 }
 
 #[derive(Serialize, Deserialize)]
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct UserResponse {
     pub id: UserId,
@@ -69,6 +74,7 @@ impl From<User> for UserResponse {
 }
 
 #[derive(Deserialize, Validate)]
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateUserPasswordRequest {
     #[garde(length(min = 1))]
@@ -97,6 +103,7 @@ impl From<UpdateUserPasswordRequestWithUserId> for UpdateUserPassword {
 }
 
 #[derive(Deserialize, Validate)]
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct CreateUserRequest {
     #[garde(length(min = 1))]
@@ -123,6 +130,7 @@ impl From<CreateUserRequest> for CreateUser {
 }
 
 #[derive(Deserialize)]
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateUserRoleRequest {
     role: RoleName,

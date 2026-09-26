@@ -21,6 +21,15 @@ use tracing_subscriber::EnvFilter;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 
+#[cfg(debug_assertions)]
+use api::openapi::ApiDoc;
+#[cfg(debug_assertions)]
+use utoipa::OpenApi;
+#[cfg(debug_assertions)]
+use utoipa_redoc::{Redoc, Servable};
+#[cfg(debug_assertions)]
+use utoipa_swagger_ui::{Config, SwaggerUi};
+
 #[tokio::main]
 async fn main() -> Result<()> {
     init_logger()?;
@@ -53,9 +62,17 @@ async fn bootstrap() -> Result<()> {
 
     let registry = AppRegistry::new(pool, kv, app_config);
 
-    let app = Router::new()
-        .merge(v1::routes())
-        .merge(auth::routes())
+    let router = Router::new().merge(v1::routes()).merge(auth::routes());
+    #[cfg(debug_assertions)]
+    let router = router
+        .merge(
+            SwaggerUi::new("/swagger-ui")
+                .url("/api-docs/openapi.json", ApiDoc::openapi())
+                .config(Config::default().default_models_expand_depth(-1)),
+        )
+        .merge(Redoc::with_url("/docs", ApiDoc::openapi()));
+
+    let app = router
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))

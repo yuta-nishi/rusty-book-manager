@@ -17,6 +17,18 @@ use registry::AppRegistry;
 use shared::error::{AppError, AppResult};
 
 /// ユーザーを追加する（Admin only）
+#[cfg_attr(
+    debug_assertions,
+    utoipa::path(post, path="/api/v1/users", tag = "users",
+        summary = "Register a user",
+        request_body = CreateUserRequest,
+        responses(
+            (status = 200, description = "The user was registered.", body = UserResponse),
+            (status = 400, description = "The request was invalid."),
+            (status = 403, description = "The user is not allowed to perform this operation.")
+        )
+    )
+)]
 pub async fn register_user(
     user: AuthorizedUser,
     State(registry): State<AppRegistry>,
@@ -34,6 +46,16 @@ pub async fn register_user(
 }
 
 /// ユーザーの一覧を取得する
+#[cfg_attr(
+    debug_assertions,
+    utoipa::path(get, path="/api/v1/users", tag = "users",
+        summary = "List users",
+        responses(
+            (status = 200, description = "The user list was returned.", body = UsersResponse),
+            (status = 500, description = "An internal server error occurred.")
+        )
+    )
+)]
 pub async fn list_users(
     _user: AuthorizedUser,
     State(registry): State<AppRegistry>,
@@ -50,6 +72,20 @@ pub async fn list_users(
 }
 
 /// ユーザーを削除する（Admin only）
+#[cfg_attr(
+    debug_assertions,
+    utoipa::path(delete, path="/api/v1/users/{user_id}", tag = "users",
+        summary = "Delete a user",
+        responses(
+            (status = 200, description = "The user was deleted."),
+            (status = 403, description = "The user is not allowed to perform this operation."),
+            (status = 404, description = "The user was not found.")
+        ),
+        params(
+            ("user_id" = Uuid, Path, description = "User ID")
+        )
+    )
+)]
 pub async fn delete_user(
     user: AuthorizedUser,
     Path(user_id): Path<UserId>,
@@ -69,6 +105,21 @@ pub async fn delete_user(
 }
 
 /// ユーザーのロールを変更する（Admin only）
+#[cfg_attr(
+    debug_assertions,
+    utoipa::path(put, path="/api/v1/users/{user_id}/role", tag = "users",
+        summary = "Change a user's role",
+        request_body = UpdateUserRoleRequest,
+        responses(
+            (status = 200, description = "The role was changed."),
+            (status = 403, description = "The user is not allowed to perform this operation."),
+            (status = 404, description = "The user was not found.")
+        ),
+        params(
+            ("user_id" = Uuid, Path, description = "User ID")
+        )
+    )
+)]
 pub async fn change_role(
     user: AuthorizedUser,
     Path(user_id): Path<UserId>,
@@ -89,11 +140,32 @@ pub async fn change_role(
 }
 
 /// ユーザーが自分自身のユーザー情報を取得する
+#[cfg_attr(
+    debug_assertions,
+    utoipa::path(get, path="/api/v1/users/me", tag = "users",
+        summary = "Get the current user",
+        responses(
+            (status = 200, description = "The current user was returned.", body = UserResponse)
+        )
+    )
+)]
 pub async fn get_current_user(user: AuthorizedUser) -> Json<UserResponse> {
     Json(UserResponse::from(user.user))
 }
 
 /// ユーザーが自分自身のパスワードを変更する
+#[cfg_attr(
+    debug_assertions,
+    utoipa::path(put, path="/api/v1/users/me/password", tag = "users",
+        summary = "Change the current user's password",
+        request_body = UpdateUserPasswordRequest,
+        responses(
+            (status = 200, description = "The password was changed."),
+            (status = 400, description = "The request was invalid."),
+            (status = 500, description = "An internal server error occurred.")
+        )
+    )
+)]
 pub async fn change_password(
     user: AuthorizedUser,
     State(registry): State<AppRegistry>,

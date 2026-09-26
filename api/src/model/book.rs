@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+#[cfg(debug_assertions)]
+use utoipa::ToSchema;
 
 use kernel::model::{
     book::{Book, event::CreateBook},
@@ -6,6 +8,7 @@ use kernel::model::{
 };
 
 #[derive(Debug, Deserialize)]
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct CreateBookRequest {
     pub title: String,
@@ -32,6 +35,7 @@ impl From<CreateBookRequest> for CreateBook {
 }
 
 #[derive(Debug, Serialize)]
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct BookResponse {
     pub id: BookId,
