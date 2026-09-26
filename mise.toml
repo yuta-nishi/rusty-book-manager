@@ -109,3 +109,11 @@ run = "redis-cli"
 [tasks.create-hash]
 description = "Generate a bcrypt hash for a password"
 run = "rust-script scripts/create-hash.rs"
+
+[tasks.actions-lint]
+description = "Lint GitHub Actions workflows"
+run = ["actionlint", "zizmor .github/workflows", "pinact run --check"]
+
+[tasks.pinact]
+description = "Pin and update GitHub Actions to latest"
+run = "pinact run --update"
