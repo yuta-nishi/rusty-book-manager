@@ -7,6 +7,18 @@ use kernel::model::auth::event::CreateToken;
 use registry::AppRegistry;
 use shared::error::AppResult;
 
+#[cfg_attr(
+    debug_assertions,
+    utoipa::path(post, path="/auth/login", tag = "auth",
+        summary = "Log in",
+        request_body = LoginRequest,
+        responses(
+            (status = 200, description = "Logged in successfully.", body = AccessTokenResponse),
+            (status = 400, description = "The request was invalid."),
+            (status = 403, description = "The email or password was incorrect.")
+        )
+    )
+)]
 pub async fn login(
     State(registry): State<AppRegistry>,
     Json(req): Json<LoginRequest>,
@@ -26,6 +38,15 @@ pub async fn login(
     }))
 }
 
+#[cfg_attr(
+    debug_assertions,
+    utoipa::path(post, path="/auth/logout", tag = "auth",
+        summary = "Log out",
+        responses(
+            (status = 204, description = "Logged out successfully.")
+        )
+    )
+)]
 pub async fn logout(
     user: AuthorizedUser,
     State(registry): State<AppRegistry>,

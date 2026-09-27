@@ -39,6 +39,9 @@ strum = { version = "0.28.0", features = ["derive"] }
 tower-http = { version = "0.7.1", features = ["trace"] }
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
+utoipa = { version = "6.0.0", features = ["axum_extras", "uuid", "chrono"] }
+utoipa-redoc = { version = "7.0.0", features = ["axum"] }
+utoipa-swagger-ui = { version = "10.0.1", features = ["axum"] }
 uuid = { version = "1.19.0", features = ["v4", "serde"] }
 
 adapter = { path = "./adapter" }
@@ -54,6 +57,9 @@ tokio.workspace = true
 tower-http.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
+utoipa.workspace = true
+utoipa-redoc.workspace = true
+utoipa-swagger-ui.workspace = true
 
 adapter.workspace = true
 api.workspace = true
