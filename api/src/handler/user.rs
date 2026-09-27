@@ -16,7 +16,6 @@ use kernel::model::{id::UserId, user::event::DeleteUser};
 use registry::AppRegistry;
 use shared::error::{AppError, AppResult};
 
-/// ユーザーを追加する（Admin only）
 #[cfg_attr(
     debug_assertions,
     utoipa::path(post, path="/api/v1/users", tag = "users",
@@ -45,7 +44,6 @@ pub async fn register_user(
     Ok(Json(registered_user.into()))
 }
 
-/// ユーザーの一覧を取得する
 #[cfg_attr(
     debug_assertions,
     utoipa::path(get, path="/api/v1/users", tag = "users",
@@ -71,7 +69,6 @@ pub async fn list_users(
     Ok(Json(UsersResponse { items }))
 }
 
-/// ユーザーを削除する（Admin only）
 #[cfg_attr(
     debug_assertions,
     utoipa::path(delete, path="/api/v1/users/{user_id}", tag = "users",
@@ -104,7 +101,6 @@ pub async fn delete_user(
     Ok(StatusCode::OK)
 }
 
-/// ユーザーのロールを変更する（Admin only）
 #[cfg_attr(
     debug_assertions,
     utoipa::path(put, path="/api/v1/users/{user_id}/role", tag = "users",
@@ -139,7 +135,6 @@ pub async fn change_role(
     Ok(StatusCode::OK)
 }
 
-/// ユーザーが自分自身のユーザー情報を取得する
 #[cfg_attr(
     debug_assertions,
     utoipa::path(get, path="/api/v1/users/me", tag = "users",
@@ -153,7 +148,6 @@ pub async fn get_current_user(user: AuthorizedUser) -> Json<UserResponse> {
     Json(UserResponse::from(user.user))
 }
 
-/// ユーザーが自分自身のパスワードを変更する
 #[cfg_attr(
     debug_assertions,
     utoipa::path(put, path="/api/v1/users/me/password", tag = "users",
