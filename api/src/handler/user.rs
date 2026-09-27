@@ -33,7 +33,7 @@ pub async fn register_user(
     State(registry): State<AppRegistry>,
     Json(req): Json<CreateUserRequest>,
 ) -> AppResult<Json<UserResponse>> {
-    //AuthorizedUser の権限が Admin のときのみ実行可能とする
+    // Only users with the Admin role can perform this operation.
     if !user.is_admin() {
         return Err(AppError::ForbiddenOperation);
     }
@@ -88,7 +88,7 @@ pub async fn delete_user(
     Path(user_id): Path<UserId>,
     State(registry): State<AppRegistry>,
 ) -> AppResult<StatusCode> {
-    //AuthorizedUser の権限が Admin のときのみ実行可能とする
+    // Only users with the Admin role can perform this operation.
     if !user.is_admin() {
         return Err(AppError::ForbiddenOperation);
     }
@@ -122,7 +122,7 @@ pub async fn change_role(
     State(registry): State<AppRegistry>,
     Json(req): Json<UpdateUserRoleRequest>,
 ) -> AppResult<StatusCode> {
-    //AuthorizedUser の権限が Admin のときのみ実行可能とする
+    // Only users with the Admin role can perform this operation.
     if !user.is_admin() {
         return Err(AppError::ForbiddenOperation);
     }

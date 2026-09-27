@@ -74,7 +74,7 @@ impl UserRepository for UserRepositoryImpl {
     async fn create(&self, event: CreateUser) -> AppResult<User> {
         let user_id = UserId::new();
         let hashed_password = hash_password(&event.password)?;
-        // ユーザーを追加するときは管理者ではなく一般のユーザー権限とする
+        // New users are created with the regular User role, not Admin.
         let role = Role::User;
         let res = sqlx::query!(
             r#"
@@ -115,9 +115,9 @@ impl UserRepository for UserRepositoryImpl {
         .await
         .map_err(AppError::SpecificOperationError)?
         .password_hash;
-        // 現在のパスワードが正しいかを検証する
+        // Verify the current password.
         verify_password(&event.current_password, &original_password_hash)?;
-        // 新しいパスワードのハッシュに置き換える
+        // Replace with the hash of the new password.
         let new_password_hash = hash_password(&event.new_password)?;
         sqlx::query!(
             r#"

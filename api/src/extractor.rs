@@ -11,7 +11,7 @@ use kernel::model::user::User;
 use registry::AppRegistry;
 use shared::error::AppError;
 
-// a) リクエストの前処理を実行後、handler に渡す構造体を定義
+// Struct passed to handlers after request preprocessing.
 pub struct AuthorizedUser {
     pub access_token: AccessToken,
     pub user: User,
@@ -29,26 +29,26 @@ impl AuthorizedUser {
 impl FromRequestParts<AppRegistry> for AuthorizedUser {
     type Rejection = AppError;
 
-    // handler メソッドの引数に AuthorizedUser を追加したときはこのメソッドが呼ばれる
+    // Called when AuthorizedUser is added as a handler argument.
     async fn from_request_parts(
         parts: &mut Parts,
         registry: &AppRegistry,
     ) -> Result<Self, Self::Rejection> {
-        // b) HTTP ヘッダからアクセストークンを取り出す
+        // Extract the access token from the HTTP header.
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
             .await
             .map_err(|_| AppError::UnauthorizedError)?;
         let access_token = AccessToken(bearer.token().to_string());
 
-        // c) アクセストークンが紐づくユーザー ID を抽出する
+        // Extract the user ID associated with the access token.
         let user_id = registry
             .auth_repository()
             .fetch_user_id_from_token(&access_token)
             .await?
             .ok_or(AppError::UnauthenticatedError)?;
 
-        // d) ユーザー ID でデータベースからユーザーのレコードを引く
+        // Look up the user record by user ID.
         let user = registry
             .user_repository()
             .find_current_user(user_id)
