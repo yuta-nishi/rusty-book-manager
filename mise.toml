@@ -68,6 +68,11 @@ description = "Start PostgreSQL, migrate, then run the app"
 depends = ["up", "migrate"]
 run = "cargo run"
 
+[tasks.run-release]
+description = "Start PostgreSQL, migrate, then run the app in release mode"
+depends = ["up", "migrate"]
+run = "cargo run --release"
+
 [tasks.test]
 description = "Run tests"
 run = "cargo nextest run --workspace --status-level all --test-threads=1 --no-tests=pass"
