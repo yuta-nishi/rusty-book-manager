@@ -4,7 +4,7 @@ use kernel::model::{
     id::UserId,
     role::Role,
     user::{
-        User,
+        BookOwner, User,
         event::{CreateUser, UpdateUserPassword, UpdateUserRole},
     },
 };
@@ -146,5 +146,20 @@ impl From<UpdateUserRoleRequestWithUserId> for UpdateUserRole {
             user_id,
             role: Role::from(role),
         }
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[cfg_attr(debug_assertions, derive(ToSchema))]
+#[serde(rename_all = "camelCase")]
+pub struct BookOwnerResponse {
+    pub id: UserId,
+    pub name: String,
+}
+
+impl From<BookOwner> for BookOwnerResponse {
+    fn from(value: BookOwner) -> Self {
+        let BookOwner { id, name } = value;
+        Self { id, name }
     }
 }
