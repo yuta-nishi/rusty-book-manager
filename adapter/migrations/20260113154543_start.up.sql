@@ -50,3 +50,27 @@ ON DELETE CASCADE
 -- booksテーブルにトリガーを追加する
 CREATE TRIGGER books_updated_at_trigger
 BEFORE UPDATE ON books FOR EACH ROW EXECUTE PROCEDURE set_updated_at () ;
+
+-- checkoutsテーブルを作成する
+CREATE TABLE IF NOT EXISTS checkouts (
+checkout_id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+book_id UUID NOT NULL UNIQUE,
+user_id UUID NOT NULL,
+checked_out_at timestamp (3) WITH time zone NOT NULL DEFAULT CURRENT_TIMESTAMP (3),
+
+FOREIGN KEY (book_id) REFERENCES books (book_id)
+ON UPDATE CASCADE
+ON DELETE CASCADE,
+FOREIGN KEY (user_id) REFERENCES users (user_id)
+ON UPDATE CASCADE
+ON DELETE CASCADE
+) ;
+
+-- returned_checkoutsテーブルを作成する
+CREATE TABLE IF NOT EXISTS returned_checkouts (
+checkout_id UUID PRIMARY KEY,
+book_id UUID NOT NULL,
+user_id UUID NOT NULL,
+checked_out_at timestamp (3) WITH time zone NOT NULL DEFAULT CURRENT_TIMESTAMP (3),
+returned_at timestamp (3) WITH time zone NOT NULL DEFAULT CURRENT_TIMESTAMP (3)
+) ;
