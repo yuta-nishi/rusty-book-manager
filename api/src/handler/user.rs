@@ -1,9 +1,12 @@
 use crate::{
     extractor::AuthorizedUser,
-    model::user::{
-        CreateUserRequest, UpdateUserPasswordRequest,
-        UpdateUserPasswordRequestWithUserId, UpdateUserRoleRequest,
-        UpdateUserRoleRequestWithUserId, UserResponse, UsersResponse,
+    model::{
+        checkout::CheckoutsResponse,
+        user::{
+            CreateUserRequest, UpdateUserPasswordRequest,
+            UpdateUserPasswordRequestWithUserId, UpdateUserRoleRequest,
+            UpdateUserRoleRequestWithUserId, UserResponse, UsersResponse,
+        },
     },
 };
 use axum::{
@@ -173,4 +176,25 @@ pub async fn change_password(
         .await?;
 
     Ok(StatusCode::OK)
+}
+
+#[cfg_attr(
+    debug_assertions,
+    utoipa::path(get, path="/api/v1/users/me/checkouts", tag = "users",
+        summary = "List the current user's checkouts",
+        responses(
+            (status = 200, description = "The checkout list was returned.", body = CheckoutsResponse)
+        )
+    )
+)]
+pub async fn get_checkouts(
+    user: AuthorizedUser,
+    State(registry): State<AppRegistry>,
+) -> AppResult<Json<CheckoutsResponse>> {
+    registry
+        .checkout_repository()
+        .find_unreturned_by_user_id(user.id())
+        .await
+        .map(CheckoutsResponse::from)
+        .map(Json)
 }
