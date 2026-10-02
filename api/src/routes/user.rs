@@ -6,9 +6,9 @@ use axum::{
     Router,
     routing::{delete, get, put},
 };
-use registry::AppRegistry;
+use registry::SharedAppRegistry;
 
-pub fn build_user_router() -> Router<AppRegistry> {
+pub fn build_user_router() -> Router<SharedAppRegistry> {
     Router::new()
         .route("/users/me", get(get_current_user))
         .route("/users/me/password", put(change_password))

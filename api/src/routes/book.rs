@@ -3,14 +3,14 @@ use axum::{
     routing::{delete, get, post, put},
 };
 
-use registry::AppRegistry;
+use registry::SharedAppRegistry;
 
 use crate::handler::{
     book::{delete_book, register_book, show_book, show_book_list, update_book},
     checkout::{checkout_book, checkout_history, return_book, show_checked_out_list},
 };
 
-pub fn build_book_routers() -> Router<AppRegistry> {
+pub fn build_book_routers() -> Router<SharedAppRegistry> {
     let books_routers = Router::new()
         .route("/", post(register_book))
         .route("/", get(show_book_list))
