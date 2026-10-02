@@ -109,7 +109,7 @@ impl From<BooksQuery> for BooksOptions {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct BookResponse {
@@ -145,7 +145,7 @@ impl From<Book> for BookResponse {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct BooksResponse {
@@ -172,7 +172,7 @@ impl From<PaginatedList<Book>> for BooksResponse {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct BookCheckoutResponse {

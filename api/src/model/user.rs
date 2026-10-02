@@ -149,7 +149,7 @@ impl From<UpdateUserRoleRequestWithUserId> for UpdateUserRole {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct BookOwnerResponse {
@@ -164,7 +164,7 @@ impl From<BookOwner> for BookOwnerResponse {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(debug_assertions, derive(ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct CheckoutUserResponse {
