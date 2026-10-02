@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use derive_new::new;
 
 use crate::database::ConnectionPool;
-use crate::database::model::book::{BookRow, PaginatedBookRow};
+use crate::database::model::book::{BookCheckoutRow, BookRow, PaginatedBookRow};
 use kernel::model::{
     book::{
-        Book, BooksOptions,
+        Book, BooksOptions, Checkout,
         event::{CreateBook, DeleteBook, UpdateBook},
     },
     id::{BookId, UserId},
@@ -13,6 +13,7 @@ use kernel::model::{
 };
 use kernel::repository::book::BookRepository;
 use shared::error::{AppError, AppResult};
+use std::collections::HashMap;
 
 #[derive(new)]
 pub struct BookRepositoryImpl {
@@ -40,11 +41,12 @@ impl BookRepository for BookRepositoryImpl {
         Ok(())
     }
 
-    // Fetch the total count and the page of book IDs first, then fetch the rows
-    // for those IDs.
+    // A page of books needs three queries: the page of IDs (which carries the
+    // total), the rows of those books, and the checkouts attached to them.
     async fn find_all(&self, options: BooksOptions) -> AppResult<PaginatedList<Book>> {
         let BooksOptions { limit, offset } = options;
-        let rows: Vec<PaginatedBookRow> = sqlx::query_as!(
+
+        let id_rows: Vec<PaginatedBookRow> = sqlx::query_as!(
             PaginatedBookRow,
             r#"
                 SELECT
@@ -62,11 +64,12 @@ impl BookRepository for BookRepositoryImpl {
         .await
         .map_err(AppError::SpecificOperationError)?;
 
-        // The total is unavailable when the first query returns no rows.
-        let total = rows.first().map(|r| r.total).unwrap_or_default();
-        let book_ids = rows.into_iter().map(|r| r.id).collect::<Vec<BookId>>();
+        // COUNT(*) OVER() is computed before LIMIT/OFFSET, so an empty page has
+        // no row carrying the total and the count falls back to 0.
+        let total = id_rows.first().map(|r| r.total).unwrap_or_default();
+        let book_ids = id_rows.into_iter().map(|r| r.id).collect::<Vec<BookId>>();
 
-        let rows: Vec<BookRow> = sqlx::query_as!(
+        let book_rows: Vec<BookRow> = sqlx::query_as!(
             BookRow,
             r#"
                 SELECT
@@ -88,7 +91,18 @@ impl BookRepository for BookRepositoryImpl {
         .await
         .map_err(AppError::SpecificOperationError)?;
 
-        let items = rows.into_iter().map(Book::from).collect();
+        // Fetch the checkouts for the whole page in one query and key them by
+        // book id, rather than querying per book.
+        let book_ids = book_rows.iter().map(|r| r.book_id).collect::<Vec<BookId>>();
+        let mut checkouts = self.find_checkouts(&book_ids).await?;
+
+        let items = book_rows
+            .into_iter()
+            .map(|row| {
+                let checkout = checkouts.remove(&row.book_id);
+                row.into_book(checkout)
+            })
+            .collect();
 
         Ok(PaginatedList {
             total,
@@ -120,7 +134,14 @@ impl BookRepository for BookRepositoryImpl {
         .await
         .map_err(AppError::SpecificOperationError)?;
 
-        Ok(row.map(Book::from))
+        match row {
+            Some(r) => {
+                let checkout =
+                    self.find_checkouts(&[r.book_id]).await?.remove(&r.book_id);
+                Ok(Some(r.into_book(checkout)))
+            }
+            None => Ok(None),
+        }
     }
 
     // Only the owner can update, so the WHERE clause matches book_id and user_id.
@@ -176,6 +197,39 @@ impl BookRepository for BookRepositoryImpl {
     }
 }
 
+impl BookRepositoryImpl {
+    // The checkouts table holds unreturned loans only, so a hit means the book
+    // is currently checked out and a miss means it is not.
+    async fn find_checkouts(
+        &self,
+        book_ids: &[BookId],
+    ) -> AppResult<HashMap<BookId, Checkout>> {
+        let res = sqlx::query_as!(
+            BookCheckoutRow,
+            r#"
+                SELECT
+                    c.checkout_id,
+                    c.book_id,
+                    u.user_id,
+                    u.name AS user_name,
+                    c.checked_out_at
+                FROM checkouts AS c
+                INNER JOIN users AS u USING(user_id)
+                WHERE c.book_id IN (SELECT * FROM UNNEST($1::uuid[]))
+            "#,
+            book_ids as _
+        )
+        .fetch_all(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError)?
+        .into_iter()
+        .map(|checkout| (checkout.book_id, Checkout::from(checkout)))
+        .collect();
+
+        Ok(res)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -222,6 +276,7 @@ mod tests {
             isbn,
             description,
             owner,
+            ..
         } = res.unwrap();
         assert_eq!(id, book_id);
         assert_eq!(title, "Test Title");
