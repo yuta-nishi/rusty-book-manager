@@ -34,16 +34,14 @@ use crate::{handler, model};
         handler::auth::login,
         handler::auth::logout,
     ),
+    // Only the types named by `body` / `request_body` above need to be listed;
+    // the types of their fields are collected automatically.
     components(schemas(
         model::book::CreateBookRequest,
         model::book::UpdateBookRequest,
         model::book::BookResponse,
         model::book::BooksResponse,
         model::checkout::CheckoutsResponse,
-        model::checkout::CheckoutResponse,
-        model::checkout::CheckoutBookResponse,
-        model::user::BookOwnerResponse,
-        model::user::RoleName,
         model::user::UserResponse,
         model::user::UsersResponse,
         model::user::CreateUserRequest,
@@ -51,8 +49,6 @@ use crate::{handler, model};
         model::user::UpdateUserPasswordRequest,
         model::auth::LoginRequest,
         model::auth::AccessTokenResponse,
-        kernel::model::id::BookId,
-        kernel::model::id::UserId,
     ))
 )]
 pub struct ApiDoc;
