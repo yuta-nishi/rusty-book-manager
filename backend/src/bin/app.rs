@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use api::routes::{auth, v1};
-use axum::Router;
+use axum::{Router, http::Method};
 use composition::AppRegistryImpl;
 use infra::database::connect_database_with;
 use infra::redis::RedisClient;
@@ -13,6 +13,7 @@ use tokio::net::TcpListener;
 use anyhow::Context;
 use shared::env::{Environment, which};
 use tower_http::LatencyUnit;
+use tower_http::cors::{self, CorsLayer};
 use tower_http::trace::{
     DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer,
 };
@@ -29,6 +30,14 @@ use utoipa::OpenApi;
 use utoipa_redoc::{Redoc, Servable};
 #[cfg(debug_assertions)]
 use utoipa_swagger_ui::{Config, SwaggerUi};
+
+// The API is called from the frontend dev server, which is a different origin.
+fn cors() -> CorsLayer {
+    CorsLayer::new()
+        .allow_headers(cors::Any)
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_origin(cors::Any)
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -83,6 +92,7 @@ async fn bootstrap() -> Result<()> {
                         .latency_unit(LatencyUnit::Millis),
                 ),
         )
+        .layer(cors())
         .with_state(registry);
 
     let addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 8080);
