@@ -233,14 +233,23 @@ impl BookRepositoryImpl {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::repository::user::UserRepositoryImpl;
-    use kernel::{model::user::event::CreateUser, repository::user::UserRepository};
+    use crate::repository::{checkout::CheckoutRepositoryImpl, user::UserRepositoryImpl};
+    use kernel::{
+        model::{
+            checkout::event::{CreateCheckout, UpdateReturned},
+            user::event::CreateUser,
+        },
+        repository::{checkout::CheckoutRepository, user::UserRepository},
+    };
+    use sqlx::types::chrono::Utc;
+    use std::str::FromStr;
 
-    #[sqlx::test]
-    async fn test_register_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
-        sqlx::query!(r#"INSERT INTO roles(name) VALUES ('Admin'), ('User');"#)
-            .execute(&pool)
-            .await?;
+    // IDs written by fixtures/common.sql and fixtures/book.sql.
+    const ADMIN_ID: &str = "5b4c96ac-316a-4bee-8e69-cac5eb84ff4c";
+    const BOOK_ID: &str = "9890736e-a4e4-461a-a77d-eac3517ef11b";
+
+    #[sqlx::test(fixtures("common"))]
+    async fn registers_a_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
         let user_repo = UserRepositoryImpl::new(ConnectionPool::new(pool.clone()));
         let repo = BookRepositoryImpl::new(ConnectionPool::new(pool.clone()));
         let user = user_repo
@@ -266,8 +275,6 @@ mod tests {
         assert_eq!(res.items.len(), 1);
 
         let book_id = res.items[0].id;
-        let res = repo.find_by_id(book_id).await?;
-        assert!(res.is_some());
 
         let Book {
             id,
@@ -277,13 +284,155 @@ mod tests {
             description,
             owner,
             ..
-        } = res.unwrap();
+        } = repo
+            .find_by_id(book_id)
+            .await?
+            .expect("the book should exist");
         assert_eq!(id, book_id);
         assert_eq!(title, "Test Title");
         assert_eq!(author, "Test Author");
         assert_eq!(isbn, "Test ISBN");
         assert_eq!(description, "Test Description");
         assert_eq!(owner.name, "Test User");
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("common", "book"))]
+    async fn updates_a_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
+        let repo = BookRepositoryImpl::new(ConnectionPool::new(pool));
+        let book_id = BookId::from_str(BOOK_ID)?;
+        let book = repo.find_by_id(book_id).await?.unwrap();
+        let new_author = "Updated Author";
+        assert_ne!(book.author, new_author);
+
+        repo.update(UpdateBook {
+            book_id: book.id,
+            title: book.title,
+            author: new_author.into(),
+            isbn: book.isbn,
+            description: book.description,
+            requested_user: UserId::from_str(ADMIN_ID)?,
+        })
+        .await?;
+
+        let updated = repo.find_by_id(book_id).await?.unwrap();
+        assert_eq!(updated.author, new_author);
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("common", "book"))]
+    async fn deletes_a_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
+        let repo = BookRepositoryImpl::new(ConnectionPool::new(pool));
+        let book_id = BookId::from_str(BOOK_ID)?;
+
+        repo.delete(DeleteBook {
+            book_id,
+            requested_user: UserId::from_str(ADMIN_ID)?,
+        })
+        .await?;
+
+        assert!(repo.find_by_id(book_id).await?.is_none());
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("common", "book_list"))]
+    async fn lists_books_with_pagination(pool: sqlx::PgPool) -> anyhow::Result<()> {
+        let repo = BookRepositoryImpl::new(ConnectionPool::new(pool));
+        // fixtures/book_list.sql holds 50 books, newest first.
+        const TOTAL: i64 = 50;
+
+        let page = repo
+            .find_all(BooksOptions {
+                limit: 10,
+                offset: 0,
+            })
+            .await?;
+        assert_eq!(page.total, TOTAL);
+        assert_eq!(page.items.len(), 10);
+        assert_eq!(page.items[0].title, "title050");
+
+        let page = repo
+            .find_all(BooksOptions {
+                limit: 10,
+                offset: 10,
+            })
+            .await?;
+        assert_eq!(page.total, TOTAL);
+        assert_eq!(page.items[0].title, "title040");
+
+        // An offset past the end returns no rows, and the total is read from them.
+        let page = repo
+            .find_all(BooksOptions {
+                limit: 10,
+                offset: 100,
+            })
+            .await?;
+        assert_eq!(page.total, 0);
+        assert!(page.items.is_empty());
+
+        Ok(())
+    }
+
+    // The second loan has to report its own borrower, not the first one.
+    async fn check_out_and_return(
+        book_repo: &BookRepositoryImpl,
+        checkout_repo: &CheckoutRepositoryImpl,
+        book_id: BookId,
+        borrower: UserId,
+    ) -> anyhow::Result<()> {
+        assert!(
+            book_repo
+                .find_by_id(book_id)
+                .await?
+                .unwrap()
+                .checkout
+                .is_none()
+        );
+
+        checkout_repo
+            .create(CreateCheckout::new(book_id, borrower, Utc::now()))
+            .await?;
+
+        let book = book_repo.find_by_id(book_id).await?.unwrap();
+        let checkout = book.checkout.expect("the checkout should be attached");
+        assert_eq!(checkout.checked_out_by.id, borrower);
+
+        checkout_repo
+            .update_returned(UpdateReturned::new(
+                checkout.checkout_id,
+                book_id,
+                borrower,
+                Utc::now(),
+            ))
+            .await?;
+
+        assert!(
+            book_repo
+                .find_by_id(book_id)
+                .await?
+                .unwrap()
+                .checkout
+                .is_none()
+        );
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("common", "book_checkout"))]
+    async fn reports_the_borrower_of_the_current_checkout(
+        pool: sqlx::PgPool,
+    ) -> anyhow::Result<()> {
+        let book_repo = BookRepositoryImpl::new(ConnectionPool::new(pool.clone()));
+        let checkout_repo = CheckoutRepositoryImpl::new(ConnectionPool::new(pool));
+        let book_id = BookId::from_str(BOOK_ID)?;
+        let first = UserId::from_str("9582f9de-0fd1-4892-b20c-70139a7eb95b")?;
+        let second = UserId::from_str("050afe56-c3da-4448-8e4d-6f44007d2ca5")?;
+
+        check_out_and_return(&book_repo, &checkout_repo, book_id, first).await?;
+        check_out_and_return(&book_repo, &checkout_repo, book_id, second).await?;
 
         Ok(())
     }
