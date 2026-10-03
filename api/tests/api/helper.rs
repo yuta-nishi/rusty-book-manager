@@ -22,9 +22,11 @@ pub fn make_router(registry: MockAppRegistry) -> Router {
 }
 
 // Every handler behind AuthorizedUser needs the token check and the user lookup
-// to answer, so they are stubbed here rather than in each test.
+// to answer, so they are stubbed here rather than in each test. The user
+// repository answers the admin-only endpoints too, so tests only assert what the
+// handler does with the answer.
 #[fixture]
-pub fn fixture() -> MockAppRegistry {
+pub fn fixture(#[default(Role::User)] role: Role) -> MockAppRegistry {
     let mut registry = MockAppRegistry::new();
 
     registry.expect_auth_repository().returning(|| {
@@ -38,16 +40,26 @@ pub fn fixture() -> MockAppRegistry {
         Arc::new(mock)
     });
 
-    registry.expect_user_repository().returning(|| {
+    registry.expect_user_repository().returning(move || {
         let mut mock = MockUserRepository::new();
-        mock.expect_find_current_user().returning(|id| {
+        mock.expect_find_current_user().returning(move |id| {
             Ok(Some(User {
                 id,
                 name: "dummy-user".to_string(),
                 email: "dummy@example.com".to_string(),
-                role: Role::User,
+                role,
             }))
         });
+        mock.expect_create().returning(|event| {
+            Ok(User {
+                id: UserId::new(),
+                name: event.name,
+                email: event.email,
+                role: Role::User,
+            })
+        });
+        mock.expect_delete().returning(|_| Ok(()));
+        mock.expect_update_role().returning(|_| Ok(()));
         Arc::new(mock)
     });
 

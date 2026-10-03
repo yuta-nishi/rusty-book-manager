@@ -1,18 +1,19 @@
-use axum::{body::Body, http::Method, http::Request, http::StatusCode};
+use axum::{
+    body::Body, http::Method, http::Request, http::StatusCode, response::Response,
+};
+use kernel::model::role::Role;
 use rstest::rstest;
 use tower::ServiceExt;
 
 use crate::helper::{RequestBuilderExt, fixture, make_router, v1};
 use registry::MockAppRegistry;
 
-// The fixture's user has the User role, and no repository expectation is set:
-// these endpoints have to answer 403 before they reach one.
 async fn send(
     fixture: MockAppRegistry,
     method: Method,
     path: &str,
     body: Option<&str>,
-) -> anyhow::Result<StatusCode> {
+) -> anyhow::Result<Response> {
     let app = make_router(fixture);
     let builder = Request::builder().method(method).uri(v1(path)).bearer();
     let req = match body {
@@ -22,38 +23,91 @@ async fn send(
         None => builder.body(Body::empty())?,
     };
 
-    Ok(app.oneshot(req).await?.status())
+    Ok(app.oneshot(req).await?)
 }
 
-mod admin_only_endpoints {
+mod register_user {
     use super::*;
 
-    #[rstest]
-    #[case::register_user(
-        Method::POST,
-        "/users",
-        Some(r#"{"name":"name","email":"user@example.com","password":"password"}"#)
-    )]
-    #[case::delete_user(
-        Method::DELETE,
-        "/users/00000000-0000-0000-0000-000000000000",
-        None
-    )]
-    #[case::change_role(
-        Method::PUT,
-        "/users/00000000-0000-0000-0000-000000000000/role",
-        Some(r#"{"role":"Admin"}"#)
-    )]
-    #[tokio::test]
-    async fn reject_a_non_admin(
-        fixture: MockAppRegistry,
-        #[case] method: Method,
-        #[case] path: &str,
-        #[case] body: Option<&str>,
-    ) -> anyhow::Result<()> {
-        let status = send(fixture, method, path, body).await?;
+    const PATH: &str = "/users";
+    const BODY: &str =
+        r#"{"name":"name","email":"user@example.com","password":"password"}"#;
 
-        assert_eq!(status, StatusCode::FORBIDDEN);
+    #[rstest]
+    #[tokio::test]
+    async fn creates_a_user(
+        #[with(Role::Admin)] fixture: MockAppRegistry,
+    ) -> anyhow::Result<()> {
+        let response = send(fixture, Method::POST, PATH, Some(BODY)).await?;
+
+        assert_eq!(response.status(), StatusCode::OK);
+
+        Ok(())
+    }
+
+    #[rstest]
+    #[tokio::test]
+    async fn rejects_a_non_admin(fixture: MockAppRegistry) -> anyhow::Result<()> {
+        let response = send(fixture, Method::POST, PATH, Some(BODY)).await?;
+
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+
+        Ok(())
+    }
+}
+
+mod delete_user {
+    use super::*;
+
+    const PATH: &str = "/users/00000000-0000-0000-0000-000000000000";
+
+    #[rstest]
+    #[tokio::test]
+    async fn deletes_a_user(
+        #[with(Role::Admin)] fixture: MockAppRegistry,
+    ) -> anyhow::Result<()> {
+        let response = send(fixture, Method::DELETE, PATH, None).await?;
+
+        assert_eq!(response.status(), StatusCode::OK);
+
+        Ok(())
+    }
+
+    #[rstest]
+    #[tokio::test]
+    async fn rejects_a_non_admin(fixture: MockAppRegistry) -> anyhow::Result<()> {
+        let response = send(fixture, Method::DELETE, PATH, None).await?;
+
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+
+        Ok(())
+    }
+}
+
+mod change_role {
+    use super::*;
+
+    const PATH: &str = "/users/00000000-0000-0000-0000-000000000000/role";
+    const BODY: &str = r#"{"role":"Admin"}"#;
+
+    #[rstest]
+    #[tokio::test]
+    async fn changes_the_role(
+        #[with(Role::Admin)] fixture: MockAppRegistry,
+    ) -> anyhow::Result<()> {
+        let response = send(fixture, Method::PUT, PATH, Some(BODY)).await?;
+
+        assert_eq!(response.status(), StatusCode::OK);
+
+        Ok(())
+    }
+
+    #[rstest]
+    #[tokio::test]
+    async fn rejects_a_non_admin(fixture: MockAppRegistry) -> anyhow::Result<()> {
+        let response = send(fixture, Method::PUT, PATH, Some(BODY)).await?;
+
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
 
         Ok(())
     }
