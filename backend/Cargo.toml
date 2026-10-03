@@ -25,6 +25,9 @@ chrono = { version = "0.4.45", default-features = false, features = ["serde"] }
 derive-new = "0.7.0"
 garde = { version = "0.23.0", features = ["derive", "email"] }
 mockall = "0.15.0"
+opentelemetry = "0.33.0"
+opentelemetry-otlp = { version = "0.33.0", default-features = false, features = ["grpc-tonic", "trace"] }
+opentelemetry_sdk = { version = "0.33.0", features = ["rt-tokio"] }
 redis = { version = "1.7.0", features = ["tokio-comp"] }
 rstest = "0.27.0"
 serde = { version = "1.0.228", features = ["derive"] }
@@ -44,6 +47,7 @@ strum = { version = "0.28.0", features = ["derive"] }
 tower = { version = "0.5.3", features = ["util"] }
 tower-http = { version = "0.7.1", features = ["cors", "trace"] }
 tracing = "0.1.44"
+tracing-opentelemetry = "0.34.0"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
 utoipa = { version = "6.0.0", features = ["axum_extras", "uuid", "chrono"] }
 utoipa-redoc = { version = "7.0.0", features = ["axum"] }
@@ -61,7 +65,11 @@ anyhow.workspace = true
 axum.workspace = true
 tokio.workspace = true
 tower-http.workspace = true
+opentelemetry.workspace = true
+opentelemetry-otlp.workspace = true
+opentelemetry_sdk.workspace = true
 tracing.workspace = true
+tracing-opentelemetry.workspace = true
 tracing-subscriber.workspace = true
 utoipa.workspace = true
 utoipa-redoc.workspace = true
