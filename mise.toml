@@ -45,52 +45,63 @@ run = "docker compose logs -f"
 
 [tasks.build]
 description = "Build"
+dir = "backend"
 run = "cargo build"
 
 [tasks.check]
 description = "Type check"
+dir = "backend"
 run = "cargo check --all --all-targets"
 
 [tasks.migrate]
 description = "Apply database migrations (waits for PostgreSQL)"
+dir = "backend"
 run = """
-until sqlx migrate run --source adapter/migrations; do
+until sqlx migrate run --source infra/migrations; do
   sleep 1
 done
 """
 
 [tasks.seed]
 description = "Insert initial data"
+dir = "backend"
 run = "psql \"$DATABASE_URL\" -f data/initial_setup.sql"
 
 [tasks.run]
 description = "Start PostgreSQL, migrate, then run the app"
 depends = ["up", "migrate"]
+dir = "backend"
 run = "cargo run"
 
 [tasks.run-release]
 description = "Start PostgreSQL, migrate, then run the app in release mode"
 depends = ["up", "migrate"]
+dir = "backend"
 run = "cargo run --release"
 
 [tasks.test]
 description = "Run tests"
+dir = "backend"
 run = "cargo nextest run --workspace --status-level all --test-threads=num-cpus --no-tests=pass"
 
 [tasks.fmt]
 description = "Format"
+dir = "backend"
 run = "cargo fmt --all"
 
 [tasks.fmt-check]
 description = "Check formatting"
+dir = "backend"
 run = "cargo fmt --all -- --check"
 
 [tasks.clippy]
 description = "Lint"
+dir = "backend"
 run = "cargo clippy --all --all-targets"
 
 [tasks.lint]
 description = "Lint with warnings denied"
+dir = "backend"
 run = "cargo clippy --all --all-targets -- -D warnings"
 
 [tasks.ci]
@@ -113,6 +124,7 @@ run = "redis-cli"
 
 [tasks.create-hash]
 description = "Generate a bcrypt hash for a password"
+dir = "backend"
 run = "rust-script scripts/create-hash.rs"
 
 [tasks.actions-lint]

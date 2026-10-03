@@ -1,0 +1,13 @@
+[package]
+name = "composition"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+infra.workspace = true
+domain.workspace = true
+mockall = { workspace = true, optional = true }
+shared.workspace = true
+
+[features]
+mock = ["dep:mockall", "domain/mock"]

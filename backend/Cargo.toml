@@ -1,0 +1,74 @@
+[package]
+name = "rusty-book-manager"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "app"
+path = "src/bin/app.rs"
+
+[workspace]
+members = ["api", "composition", "domain", "infra", "shared"]
+
+[workspace.package]
+edition = "2024"
+publish = false
+license = "MIT"
+
+[workspace.dependencies]
+async-trait = "0.1.92"
+anyhow = "1.0.100"
+axum = { version = "0.8.8", features = ["macros"] }
+axum-extra = { version = "0.12.6", features = ["typed-header"] }
+bcrypt = "0.19.3"
+chrono = { version = "0.4.45", default-features = false, features = ["serde"] }
+derive-new = "0.7.0"
+garde = { version = "0.23.0", features = ["derive", "email"] }
+mockall = "0.15.0"
+redis = { version = "1.7.0", features = ["tokio-comp"] }
+rstest = "0.27.0"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.151"
+sqlx = { version = "0.8.6", features = [
+  "runtime-tokio",
+  "uuid",
+  "chrono",
+  "macros",
+  "postgres",
+  "migrate",
+] }
+thiserror = "2.0.17"
+tokio = { version = "1.49.0", features = ["full"] }
+tokio-stream = "0.1.19"
+strum = { version = "0.28.0", features = ["derive"] }
+tower = { version = "0.5.3", features = ["util"] }
+tower-http = { version = "0.7.1", features = ["trace"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
+utoipa = { version = "6.0.0", features = ["axum_extras", "uuid", "chrono"] }
+utoipa-redoc = { version = "7.0.0", features = ["axum"] }
+utoipa-swagger-ui = { version = "10.0.1", features = ["axum"] }
+uuid = { version = "1.19.0", features = ["v4", "serde"] }
+
+api = { path = "./api" }
+domain = { path = "./domain" }
+infra = { path = "./infra" }
+composition = { path = "./composition" }
+shared = { path = "./shared" }
+
+[dependencies]
+anyhow.workspace = true
+axum.workspace = true
+tokio.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+utoipa.workspace = true
+utoipa-redoc.workspace = true
+utoipa-swagger-ui.workspace = true
+
+api.workspace = true
+domain.workspace = true
+infra.workspace = true
+composition.workspace = true
+shared.workspace = true
