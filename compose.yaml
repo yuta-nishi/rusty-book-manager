@@ -4,22 +4,23 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       args:
-        - DATABASE_URL:${DATABASE_URL}
+        DATABASE_URL: ${DATABASE_URL}
       network: host
     ports:
       - 8080:${PORT}
     environment:
-      - HOST:${HOST}
-      - PORT:${PORT}
-      - DATABASE_HOST:${DATABASE_HOST}
-      - DATABASE_URL:${DATABASE_URL}
-      - DATABASE_USERNAME:${DATABASE_USERNAME}
-      - DATABASE_PASSWORD:${DATABASE_PASSWORD}
-      - DATABASE_NAME:${DATABASE_NAME}
-      - REDIS_HOST:${REDIS_HOST}
-      - REDIS_PORT:${REDIS_PORT}
-      - AUTH_TOKEN_TTL:${AUTH_TOKEN_TTL}
-      - OTEL_EXPORTER_OTLP_ENDPOINT:http://jaeger:4317
+      HOST: ${HOST}
+      PORT: ${PORT}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: ${DATABASE_PORT_INNER}
+      DATABASE_URL: postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@postgres:${DATABASE_PORT_INNER}/${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      REDIS_HOST: redis
+      REDIS_PORT: ${REDIS_PORT_INNER}
+      AUTH_TOKEN_TTL: ${AUTH_TOKEN_TTL}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
     depends_on:
       - postgres
       - redis

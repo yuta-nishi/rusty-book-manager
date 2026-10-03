@@ -78,6 +78,11 @@ depends = ["up", "migrate"]
 dir = "backend"
 run = "cargo run --release"
 
+[tasks.run-in-docker]
+description = "Build the app image and run it in Docker"
+depends = ["up", "migrate"]
+run = "docker compose up -d --build app"
+
 [tasks.test]
 description = "Run tests"
 dir = "backend"
