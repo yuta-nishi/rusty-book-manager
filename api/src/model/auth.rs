@@ -1,4 +1,4 @@
-use kernel::model::id::UserId;
+use domain::model::id::UserId;
 use serde::{Deserialize, Serialize};
 #[cfg(debug_assertions)]
 use utoipa::ToSchema;

@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use super::user::{BookOwnerResponse, CheckoutUserResponse};
-use kernel::model::{
+use domain::model::{
     book::{
         Book, BooksOptions, Checkout,
         event::{CreateBook, UpdateBook},

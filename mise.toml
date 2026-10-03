@@ -54,7 +54,7 @@ run = "cargo check --all --all-targets"
 [tasks.migrate]
 description = "Apply database migrations (waits for PostgreSQL)"
 run = """
-until sqlx migrate run --source adapter/migrations; do
+until sqlx migrate run --source infra/migrations; do
   sleep 1
 done
 """

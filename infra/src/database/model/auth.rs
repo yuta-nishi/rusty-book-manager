@@ -1,7 +1,7 @@
 use shared::error::{AppError, AppResult};
 use std::str::FromStr;
 
-use kernel::model::{
+use domain::model::{
     auth::{AccessToken, event::CreateToken},
     id::UserId,
 };

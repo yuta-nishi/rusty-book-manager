@@ -8,7 +8,7 @@ name = "app"
 path = "src/bin/app.rs"
 
 [workspace]
-members = ["adapter", "api", "kernel", "registry", "shared"]
+members = ["api", "domain", "infra", "registry", "shared"]
 
 [workspace.package]
 edition = "2024"
@@ -50,9 +50,9 @@ utoipa-redoc = { version = "7.0.0", features = ["axum"] }
 utoipa-swagger-ui = { version = "10.0.1", features = ["axum"] }
 uuid = { version = "1.19.0", features = ["v4", "serde"] }
 
-adapter = { path = "./adapter" }
 api = { path = "./api" }
-kernel = { path = "./kernel" }
+domain = { path = "./domain" }
+infra = { path = "./infra" }
 registry = { path = "./registry" }
 shared = { path = "./shared" }
 
@@ -67,8 +67,8 @@ utoipa.workspace = true
 utoipa-redoc.workspace = true
 utoipa-swagger-ui.workspace = true
 
-adapter.workspace = true
 api.workspace = true
-kernel.workspace = true
+domain.workspace = true
+infra.workspace = true
 registry.workspace = true
 shared.workspace = true

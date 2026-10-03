@@ -1,13 +1,13 @@
 use crate::database::{ConnectionPool, model::user::UserRow};
 use async_trait::async_trait;
 use derive_new::new;
-use kernel::model::id::UserId;
-use kernel::model::role::Role;
-use kernel::model::user::{
+use domain::model::id::UserId;
+use domain::model::role::Role;
+use domain::model::user::{
     User,
     event::{CreateUser, DeleteUser, UpdateUserPassword, UpdateUserRole},
 };
-use kernel::repository::user::UserRepository;
+use domain::repository::user::UserRepository;
 use shared::error::{AppError, AppResult};
 
 #[derive(new)]

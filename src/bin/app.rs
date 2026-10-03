@@ -1,11 +1,11 @@
 use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 
-use adapter::database::connect_database_with;
-use adapter::redis::RedisClient;
 use anyhow::Result;
 use api::routes::{auth, v1};
 use axum::Router;
+use infra::database::connect_database_with;
+use infra::redis::RedisClient;
 use registry::AppRegistryImpl;
 use shared::config::AppConfig;
 use tokio::net::TcpListener;

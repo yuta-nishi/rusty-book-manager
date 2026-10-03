@@ -10,8 +10,8 @@ use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
 };
+use domain::model::{book::event::DeleteBook, id::BookId};
 use garde::Validate;
-use kernel::model::{book::event::DeleteBook, id::BookId};
 use registry::SharedAppRegistry;
 use shared::error::{AppError, AppResult};
 

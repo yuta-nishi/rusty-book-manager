@@ -14,8 +14,8 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
+use domain::model::{id::UserId, user::event::DeleteUser};
 use garde::Validate;
-use kernel::model::{id::UserId, user::event::DeleteUser};
 use registry::SharedAppRegistry;
 use shared::error::{AppError, AppResult};
 

@@ -3,7 +3,7 @@ use derive_new::new;
 
 use crate::database::ConnectionPool;
 use crate::database::model::book::{BookCheckoutRow, BookRow, PaginatedBookRow};
-use kernel::model::{
+use domain::model::{
     book::{
         Book, BooksOptions, Checkout,
         event::{CreateBook, DeleteBook, UpdateBook},
@@ -11,7 +11,7 @@ use kernel::model::{
     id::{BookId, UserId},
     list::PaginatedList,
 };
-use kernel::repository::book::BookRepository;
+use domain::repository::book::BookRepository;
 use shared::error::{AppError, AppResult};
 use std::collections::HashMap;
 
@@ -234,7 +234,7 @@ impl BookRepositoryImpl {
 mod tests {
     use super::*;
     use crate::repository::{checkout::CheckoutRepositoryImpl, user::UserRepositoryImpl};
-    use kernel::{
+    use domain::{
         model::{
             checkout::event::{CreateCheckout, UpdateReturned},
             user::event::CreateUser,

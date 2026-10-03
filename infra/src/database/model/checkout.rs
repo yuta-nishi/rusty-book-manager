@@ -1,4 +1,4 @@
-use kernel::model::{
+use domain::model::{
     checkout::{Checkout, CheckoutBook},
     id::{BookId, CheckoutId, UserId},
 };

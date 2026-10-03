@@ -1,4 +1,4 @@
-use kernel::model::{
+use domain::model::{
     book::{Book, Checkout},
     id::{BookId, CheckoutId, UserId},
     user::{BookOwner, CheckoutUser},

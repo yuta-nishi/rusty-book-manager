@@ -7,7 +7,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use derive_new::new;
-use kernel::{
+use domain::{
     model::{
         auth::{AccessToken, event::CreateToken},
         id::UserId,

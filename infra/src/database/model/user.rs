@@ -1,4 +1,4 @@
-use kernel::model::{id::UserId, role::Role, user::User};
+use domain::model::{id::UserId, role::Role, user::User};
 use shared::error::AppError;
 use sqlx::types::chrono::{DateTime, Utc};
 use std::str::FromStr;

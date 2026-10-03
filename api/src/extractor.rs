@@ -4,10 +4,10 @@ use axum::http::request::Parts;
 use axum_extra::TypedHeader;
 use axum_extra::headers::Authorization;
 use axum_extra::headers::authorization::Bearer;
-use kernel::model::auth::AccessToken;
-use kernel::model::id::UserId;
-use kernel::model::role::Role;
-use kernel::model::user::User;
+use domain::model::auth::AccessToken;
+use domain::model::id::UserId;
+use domain::model::role::Role;
+use domain::model::user::User;
 use registry::SharedAppRegistry;
 use shared::error::AppError;
 

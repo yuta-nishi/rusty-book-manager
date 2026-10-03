@@ -1,16 +1,16 @@
 use std::sync::Arc;
 
-use adapter::redis::RedisClient;
-use adapter::repository::auth::AuthRepositoryImpl;
-use adapter::repository::book::BookRepositoryImpl;
-use adapter::repository::checkout::CheckoutRepositoryImpl;
-use adapter::repository::user::UserRepositoryImpl;
-use adapter::{database::ConnectionPool, repository::health::HealthCheckRepositoryImpl};
-use kernel::repository::auth::AuthRepository;
-use kernel::repository::book::BookRepository;
-use kernel::repository::checkout::CheckoutRepository;
-use kernel::repository::health::HealthCheckRepository;
-use kernel::repository::user::UserRepository;
+use domain::repository::auth::AuthRepository;
+use domain::repository::book::BookRepository;
+use domain::repository::checkout::CheckoutRepository;
+use domain::repository::health::HealthCheckRepository;
+use domain::repository::user::UserRepository;
+use infra::redis::RedisClient;
+use infra::repository::auth::AuthRepositoryImpl;
+use infra::repository::book::BookRepositoryImpl;
+use infra::repository::checkout::CheckoutRepositoryImpl;
+use infra::repository::user::UserRepositoryImpl;
+use infra::{database::ConnectionPool, repository::health::HealthCheckRepositoryImpl};
 use shared::config::AppConfig;
 
 pub struct AppRegistryImpl {

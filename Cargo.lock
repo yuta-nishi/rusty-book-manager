@@ -3,21 +3,6 @@
 version = 4
 
 [[package]]
-name = "adapter"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bcrypt",
- "derive-new",
- "kernel",
- "redis",
- "shared",
- "sqlx",
- "tokio",
-]
-
-[[package]]
 name = "aho-corasick"
 version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -62,8 +47,8 @@ dependencies = [
  "axum-extra",
  "chrono",
  "derive-new",
+ "domain",
  "garde",
- "kernel",
  "registry",
  "rstest",
  "serde",
@@ -487,6 +472,22 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.104",
+]
+
+[[package]]
+name = "domain"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "derive-new",
+ "mockall",
+ "serde",
+ "shared",
+ "sqlx",
+ "strum",
+ "utoipa",
+ "uuid",
 ]
 
 [[package]]
@@ -1074,6 +1075,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "infra"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcrypt",
+ "derive-new",
+ "domain",
+ "redis",
+ "shared",
+ "sqlx",
+ "tokio",
+]
+
+[[package]]
 name = "inout"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1096,22 +1112,6 @@ checksum = "1cfaf33c695fc6e08064efbc1f72ec937429614f25eef83af942d0e227c3a28f"
 dependencies = [
  "once_cell",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "kernel"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "chrono",
- "derive-new",
- "mockall",
- "serde",
- "shared",
- "sqlx",
- "strum",
- "utoipa",
- "uuid",
 ]
 
 [[package]]
@@ -1586,8 +1586,8 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 name = "registry"
 version = "0.1.0"
 dependencies = [
- "adapter",
- "kernel",
+ "domain",
+ "infra",
  "mockall",
  "shared",
 ]
@@ -1666,11 +1666,11 @@ checksum = "8a0d197bd2c9dc6e53b84da9556a69ba4cdfab8619eb41a8bd1cc2027a0f6b1d"
 name = "rusty-book-manager"
 version = "0.1.0"
 dependencies = [
- "adapter",
  "anyhow",
  "api",
  "axum",
- "kernel",
+ "domain",
+ "infra",
  "registry",
  "shared",
  "tokio",

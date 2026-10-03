@@ -3,7 +3,7 @@ use crate::{
     model::auth::{AccessTokenResponse, LoginRequest},
 };
 use axum::{Json, extract::State, http::StatusCode};
-use kernel::model::auth::event::CreateToken;
+use domain::model::auth::event::CreateToken;
 use registry::SharedAppRegistry;
 use shared::error::AppResult;
 

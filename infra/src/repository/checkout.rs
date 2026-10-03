@@ -4,12 +4,12 @@ use crate::database::{
 };
 use async_trait::async_trait;
 use derive_new::new;
-use kernel::model::checkout::{
+use domain::model::checkout::{
     Checkout,
     event::{CreateCheckout, UpdateReturned},
 };
-use kernel::model::id::{BookId, CheckoutId, UserId};
-use kernel::repository::checkout::CheckoutRepository;
+use domain::model::id::{BookId, CheckoutId, UserId};
+use domain::repository::checkout::CheckoutRepository;
 use shared::error::{AppError, AppResult};
 
 #[derive(new)]

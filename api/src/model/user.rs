@@ -1,6 +1,5 @@
 use derive_new::new;
-use garde::Validate;
-use kernel::model::{
+use domain::model::{
     id::UserId,
     role::Role,
     user::{
@@ -8,6 +7,7 @@ use kernel::model::{
         event::{CreateUser, UpdateUserPassword, UpdateUserRole},
     },
 };
+use garde::Validate;
 use serde::{Deserialize, Serialize};
 use strum::VariantNames;
 #[cfg(debug_assertions)]

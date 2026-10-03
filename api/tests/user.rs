@@ -3,7 +3,7 @@ mod helper;
 use axum::{
     body::Body, http::Method, http::Request, http::StatusCode, response::Response,
 };
-use kernel::model::role::Role;
+use domain::model::role::Role;
 use rstest::rstest;
 use tower::ServiceExt;
 

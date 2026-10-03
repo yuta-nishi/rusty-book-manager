@@ -1,5 +1,5 @@
 [package]
-name = "adapter"
+name = "infra"
 version = "0.1.0"
 edition = "2024"
 
@@ -10,7 +10,7 @@ derive-new.workspace = true
 redis.workspace = true
 sqlx.workspace = true
 
-kernel.workspace = true
+domain.workspace = true
 shared.workspace = true
 
 [dev-dependencies]
