@@ -183,3 +183,71 @@ fn verify_password(password: &str, hash: &str) -> AppResult<()> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::str::FromStr;
+
+    // The user written by fixtures/common.sql.
+    const ADMIN_ID: &str = "5b4c96ac-316a-4bee-8e69-cac5eb84ff4c";
+
+    #[sqlx::test(fixtures("common"))]
+    async fn finds_the_current_user(pool: sqlx::PgPool) -> anyhow::Result<()> {
+        let repo = UserRepositoryImpl::new(ConnectionPool::new(pool));
+        let user_id = UserId::from_str(ADMIN_ID)?;
+
+        assert_eq!(
+            repo.find_current_user(user_id).await?,
+            Some(User {
+                id: user_id,
+                name: "Eleazar Fig".into(),
+                email: "eleazar.fig@example.com".into(),
+                role: Role::Admin,
+            })
+        );
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("common"))]
+    async fn creates_updates_and_deletes_a_user(
+        pool: sqlx::PgPool,
+    ) -> anyhow::Result<()> {
+        let repo = UserRepositoryImpl::new(ConnectionPool::new(pool));
+
+        let user = repo
+            .create(CreateUser {
+                name: "Test".into(),
+                email: "test@example.com".into(),
+                password: "dummy".into(),
+            })
+            .await?;
+
+        repo.update_password(UpdateUserPassword {
+            user_id: user.id,
+            current_password: "dummy".into(),
+            new_password: "new_password".into(),
+        })
+        .await?;
+
+        repo.update_role(UpdateUserRole {
+            user_id: user.id,
+            role: Role::Admin,
+        })
+        .await?;
+
+        let found = repo
+            .find_current_user(user.id)
+            .await?
+            .expect("the user should exist");
+        assert_eq!(found.role, Role::Admin);
+        assert!(repo.find_all().await?.iter().any(|u| u.id == user.id));
+
+        repo.delete(DeleteUser { user_id: user.id }).await?;
+
+        assert!(repo.find_current_user(user.id).await?.is_none());
+
+        Ok(())
+    }
+}

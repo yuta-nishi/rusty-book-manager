@@ -310,3 +310,127 @@ impl CheckoutRepositoryImpl {
         Ok(res)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sqlx::types::chrono::Utc;
+    use std::str::FromStr;
+
+    // IDs written by fixtures/checkout.sql.
+    const BOOK_ID: &str = "9890736e-a4e4-461a-a77d-eac3517ef11b";
+    const FIRST_USER_ID: &str = "9582f9de-0fd1-4892-b20c-70139a7eb95b";
+    const SECOND_USER_ID: &str = "050afe56-c3da-4448-8e4d-6f44007d2ca5";
+
+    #[sqlx::test(fixtures("common", "checkout"))]
+    async fn checks_out_and_returns_a_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
+        let repo = CheckoutRepositoryImpl::new(ConnectionPool::new(pool));
+        let book_id = BookId::from_str(BOOK_ID)?;
+        let first = UserId::from_str(FIRST_USER_ID)?;
+        let second = UserId::from_str(SECOND_USER_ID)?;
+
+        assert!(repo.find_unreturned_by_book_id(book_id).await?.is_none());
+
+        // Checking out a book that does not exist is refused.
+        let res = repo
+            .create(CreateCheckout::new(BookId::new(), first, Utc::now()))
+            .await;
+        assert!(matches!(res, Err(AppError::EntityNotFound(_))));
+
+        repo.create(CreateCheckout::new(book_id, first, Utc::now()))
+            .await?;
+
+        let checkout = repo.find_unreturned_by_book_id(book_id).await?.unwrap();
+        assert_eq!(checkout.book.book_id, book_id);
+        assert_eq!(checkout.checked_out_by, first);
+
+        // The book is already out, so a second checkout is refused.
+        let res = repo
+            .create(CreateCheckout::new(book_id, second, Utc::now()))
+            .await;
+        assert!(matches!(res, Err(AppError::UnprocessableEntity(_))));
+
+        // Returning it with another book or user is refused.
+        let res = repo
+            .update_returned(UpdateReturned::new(
+                checkout.id,
+                BookId::new(),
+                first,
+                Utc::now(),
+            ))
+            .await;
+        assert!(matches!(res, Err(AppError::EntityNotFound(_))));
+
+        let res = repo
+            .update_returned(UpdateReturned::new(
+                checkout.id,
+                book_id,
+                second,
+                Utc::now(),
+            ))
+            .await;
+        assert!(matches!(res, Err(AppError::UnprocessableEntity(_))));
+
+        repo.update_returned(UpdateReturned::new(
+            checkout.id,
+            book_id,
+            first,
+            Utc::now(),
+        ))
+        .await?;
+
+        assert!(repo.find_unreturned_by_book_id(book_id).await?.is_none());
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("common", "checkout"))]
+    async fn lists_checkouts(pool: sqlx::PgPool) -> anyhow::Result<()> {
+        let repo = CheckoutRepositoryImpl::new(ConnectionPool::new(pool));
+        let book_id = BookId::from_str(BOOK_ID)?;
+        let first = UserId::from_str(FIRST_USER_ID)?;
+        let second = UserId::from_str(SECOND_USER_ID)?;
+
+        repo.create(CreateCheckout::new(book_id, first, Utc::now()))
+            .await?;
+        let checkout = repo.find_unreturned_by_book_id(book_id).await?.unwrap();
+
+        assert_eq!(repo.find_unreturned_all().await?.len(), 1);
+        assert_eq!(repo.find_unreturned_by_user_id(first).await?.len(), 1);
+        assert!(repo.find_unreturned_by_user_id(second).await?.is_empty());
+        assert_eq!(repo.find_history_by_book_id(book_id).await?.len(), 1);
+
+        repo.update_returned(UpdateReturned::new(
+            checkout.id,
+            book_id,
+            first,
+            Utc::now(),
+        ))
+        .await?;
+
+        assert!(repo.find_unreturned_all().await?.is_empty());
+        // The returned loan stays in the history.
+        assert_eq!(repo.find_history_by_book_id(book_id).await?.len(), 1);
+
+        repo.create(CreateCheckout::new(book_id, second, Utc::now()))
+            .await?;
+        let checkout = repo.find_unreturned_by_book_id(book_id).await?.unwrap();
+
+        assert_eq!(repo.find_unreturned_all().await?.len(), 1);
+        assert_eq!(repo.find_unreturned_by_user_id(second).await?.len(), 1);
+        assert_eq!(repo.find_history_by_book_id(book_id).await?.len(), 2);
+
+        repo.update_returned(UpdateReturned::new(
+            checkout.id,
+            book_id,
+            second,
+            Utc::now(),
+        ))
+        .await?;
+
+        assert!(repo.find_unreturned_all().await?.is_empty());
+        assert_eq!(repo.find_history_by_book_id(book_id).await?.len(), 2);
+
+        Ok(())
+    }
+}

@@ -75,7 +75,7 @@ run = "cargo run --release"
 
 [tasks.test]
 description = "Run tests"
-run = "cargo nextest run --workspace --status-level all --test-threads=1 --no-tests=pass"
+run = "cargo nextest run --workspace --status-level all --test-threads=num-cpus --no-tests=pass"
 
 [tasks.fmt]
 description = "Format"
