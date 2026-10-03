@@ -6,8 +6,7 @@ DATABASE_PORT_OUTER = "5432"
 DATABASE_PORT_INNER = "5432"
 REDIS_PORT_OUTER = "6379"
 REDIS_PORT_INNER = "6379"
-JAEGER_HOST = "localhost"
-JAEGER_PORT = "6831"
+OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4317"
 
 # アプリ (AppConfig) 用
 DATABASE_HOST = "localhost"
@@ -28,8 +27,8 @@ PGPASSWORD = "passwd"
 PGDATABASE = "app"
 
 [tasks.up]
-description = "Start PostgreSQL and Redis"
-run = "docker compose up -d postgres redis"
+description = "Start PostgreSQL, Redis and Jaeger"
+run = "docker compose up -d postgres redis jaeger"
 
 [tasks.down]
 description = "Stop containers"

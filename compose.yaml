@@ -19,11 +19,11 @@ services:
       - REDIS_HOST:${REDIS_HOST}
       - REDIS_PORT:${REDIS_PORT}
       - AUTH_TOKEN_TTL:${AUTH_TOKEN_TTL}
-      - JAEGER_HOST:${JAEGER_HOST}
-      - JAEGER_PORT:${JAEGER_PORT}
+      - OTEL_EXPORTER_OTLP_ENDPOINT:http://jaeger:4317
     depends_on:
       - postgres
       - redis
+      - jaeger
 
   postgres:
     image: postgres:17
@@ -46,6 +46,13 @@ services:
     image: redis:alpine
     ports:
       - ${REDIS_PORT_OUTER}:${REDIS_PORT_INNER}
+
+  jaeger:
+    image: jaegertracing/jaeger:2.21.0
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
 
 volumes:
   db:
