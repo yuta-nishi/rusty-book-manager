@@ -10,9 +10,9 @@ use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
 };
+use composition::SharedAppRegistry;
 use domain::model::{book::event::DeleteBook, id::BookId};
 use garde::Validate;
-use registry::SharedAppRegistry;
 use shared::error::{AppError, AppResult};
 
 #[cfg_attr(

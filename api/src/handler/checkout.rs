@@ -4,11 +4,11 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
+use composition::SharedAppRegistry;
 use domain::model::{
     checkout::event::{CreateCheckout, UpdateReturned},
     id::{BookId, CheckoutId},
 };
-use registry::SharedAppRegistry;
 use shared::error::AppResult;
 
 #[cfg_attr(

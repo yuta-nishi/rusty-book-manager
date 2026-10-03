@@ -8,7 +8,7 @@ name = "app"
 path = "src/bin/app.rs"
 
 [workspace]
-members = ["api", "domain", "infra", "registry", "shared"]
+members = ["api", "composition", "domain", "infra", "shared"]
 
 [workspace.package]
 edition = "2024"
@@ -53,7 +53,7 @@ uuid = { version = "1.19.0", features = ["v4", "serde"] }
 api = { path = "./api" }
 domain = { path = "./domain" }
 infra = { path = "./infra" }
-registry = { path = "./registry" }
+composition = { path = "./composition" }
 shared = { path = "./shared" }
 
 [dependencies]
@@ -70,5 +70,5 @@ utoipa-swagger-ui.workspace = true
 api.workspace = true
 domain.workspace = true
 infra.workspace = true
-registry.workspace = true
+composition.workspace = true
 shared.workspace = true

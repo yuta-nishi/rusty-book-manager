@@ -4,9 +4,9 @@ use std::sync::Arc;
 use anyhow::Result;
 use api::routes::{auth, v1};
 use axum::Router;
+use composition::AppRegistryImpl;
 use infra::database::connect_database_with;
 use infra::redis::RedisClient;
-use registry::AppRegistryImpl;
 use shared::config::AppConfig;
 use tokio::net::TcpListener;
 

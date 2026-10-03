@@ -14,7 +14,7 @@ strum.workspace = true
 utoipa.workspace = true
 
 domain.workspace = true
-registry.workspace = true
+composition.workspace = true
 shared.workspace = true
 
 [dev-dependencies]
@@ -28,4 +28,4 @@ tower.workspace = true
 # The API tests inject mocks, so the test build needs the mock feature. Listing
 # them here keeps it out of the normal build.
 domain = { workspace = true, features = ["mock"] }
-registry = { workspace = true, features = ["mock"] }
+composition = { workspace = true, features = ["mock"] }

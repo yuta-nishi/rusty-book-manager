@@ -3,7 +3,7 @@ use axum::{
     routing::{delete, get, post, put},
 };
 
-use registry::SharedAppRegistry;
+use composition::SharedAppRegistry;
 
 use crate::handler::{
     book::{delete_book, register_book, show_book, show_book_list, update_book},

@@ -7,8 +7,8 @@ use domain::model::role::Role;
 use rstest::rstest;
 use tower::ServiceExt;
 
+use composition::MockAppRegistry;
 use helper::{RequestBuilderExt, fixture, make_router, v1};
-use registry::MockAppRegistry;
 
 async fn send(
     fixture: MockAppRegistry,

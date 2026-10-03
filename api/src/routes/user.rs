@@ -6,7 +6,7 @@ use axum::{
     Router,
     routing::{delete, get, put},
 };
-use registry::SharedAppRegistry;
+use composition::SharedAppRegistry;
 
 pub fn build_user_router() -> Router<SharedAppRegistry> {
     Router::new()

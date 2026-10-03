@@ -46,10 +46,10 @@ dependencies = [
  "axum",
  "axum-extra",
  "chrono",
+ "composition",
  "derive-new",
  "domain",
  "garde",
- "registry",
  "rstest",
  "serde",
  "serde_json",
@@ -339,6 +339,16 @@ dependencies = [
  "rustversion",
  "ryu",
  "static_assertions",
+]
+
+[[package]]
+name = "composition"
+version = "0.1.0"
+dependencies = [
+ "domain",
+ "infra",
+ "mockall",
+ "shared",
 ]
 
 [[package]]
@@ -1583,16 +1593,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 
 [[package]]
-name = "registry"
-version = "0.1.0"
-dependencies = [
- "domain",
- "infra",
- "mockall",
- "shared",
-]
-
-[[package]]
 name = "relative-path"
 version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1669,9 +1669,9 @@ dependencies = [
  "anyhow",
  "api",
  "axum",
+ "composition",
  "domain",
  "infra",
- "registry",
  "shared",
  "tokio",
  "tower-http",

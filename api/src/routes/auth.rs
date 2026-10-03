@@ -1,6 +1,6 @@
 use crate::handler::auth::{login, logout};
 use axum::{Router, routing::post};
-use registry::SharedAppRegistry;
+use composition::SharedAppRegistry;
 
 pub fn routes() -> Router<SharedAppRegistry> {
     let auth_router = Router::new()

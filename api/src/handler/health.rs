@@ -1,5 +1,5 @@
 use axum::{extract::State, http::StatusCode};
-use registry::SharedAppRegistry;
+use composition::SharedAppRegistry;
 
 #[cfg_attr(
     debug_assertions,

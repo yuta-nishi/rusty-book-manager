@@ -2,11 +2,11 @@ use std::sync::Arc;
 
 use api::routes::{auth, v1};
 use axum::{Router, http::request::Builder};
+use composition::MockAppRegistry;
 use domain::{
     model::{auth::AccessToken, id::UserId, role::Role, user::User},
     repository::{auth::MockAuthRepository, user::MockUserRepository},
 };
-use registry::MockAppRegistry;
 use rstest::fixture;
 
 pub fn v1(endpoint: &str) -> String {

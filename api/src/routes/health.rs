@@ -1,5 +1,5 @@
 use axum::{Router, routing::get};
-use registry::SharedAppRegistry;
+use composition::SharedAppRegistry;
 
 use crate::handler::health::{health_check, health_check_db};
 

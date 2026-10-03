@@ -8,6 +8,7 @@ use serde::de::DeserializeOwned;
 use tower::ServiceExt;
 
 use api::model::book::BookResponse;
+use composition::MockAppRegistry;
 use domain::{
     model::{
         book::{Book, Checkout},
@@ -17,7 +18,6 @@ use domain::{
     repository::book::MockBookRepository,
 };
 use helper::{RequestBuilderExt, fixture, make_router, v1};
-use registry::MockAppRegistry;
 
 fn book(book_id: BookId, checkout: Option<CheckoutId>) -> Book {
     Book {

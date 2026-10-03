@@ -14,9 +14,9 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
+use composition::SharedAppRegistry;
 use domain::model::{id::UserId, user::event::DeleteUser};
 use garde::Validate;
-use registry::SharedAppRegistry;
 use shared::error::{AppError, AppResult};
 
 #[cfg_attr(
