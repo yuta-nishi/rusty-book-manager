@@ -42,3 +42,61 @@ impl RedisClient {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use shared::error::AppError;
+
+    #[derive(Debug, PartialEq, Eq)]
+    struct TestContent {
+        name: String,
+    }
+
+    struct TestContentKey(String);
+
+    impl RedisKey for TestContentKey {
+        type Value = TestContent;
+
+        fn inner(&self) -> String {
+            self.0.clone()
+        }
+    }
+
+    impl TryFrom<String> for TestContent {
+        type Error = AppError;
+
+        fn try_from(value: String) -> Result<Self, Self::Error> {
+            Ok(Self { name: value })
+        }
+    }
+
+    impl RedisValue for TestContent {
+        fn inner(&self) -> String {
+            self.name.clone()
+        }
+    }
+
+    #[tokio::test]
+    async fn stores_and_deletes_a_value() -> anyhow::Result<()> {
+        let config = RedisConfig {
+            host: std::env::var("REDIS_HOST")?,
+            port: std::env::var("REDIS_PORT")?.parse()?,
+        };
+        let client = RedisClient::new(&config)?;
+        let key = TestContentKey("test:key".to_string());
+        let content = TestContent {
+            name: "value".to_string(),
+        };
+
+        assert!(client.get(&key).await?.is_none());
+
+        client.set_ex(&key, &content, 1000).await?;
+        assert_eq!(client.get(&key).await?, Some(content));
+
+        client.delete(&key).await?;
+        assert!(client.get(&key).await?.is_none());
+
+        Ok(())
+    }
+}
