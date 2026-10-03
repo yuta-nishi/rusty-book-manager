@@ -58,6 +58,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tower",
+ "tracing",
  "utoipa",
 ]
 

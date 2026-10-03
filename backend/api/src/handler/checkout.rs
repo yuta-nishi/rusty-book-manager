@@ -25,6 +25,12 @@ use shared::error::AppResult;
         )
     )
 )]
+#[tracing::instrument(
+    skip(user, registry),
+    fields(
+        user_id = %user.user.id.to_string()
+    )
+)]
 pub async fn checkout_book(
     user: AuthorizedUser,
     Path(book_id): Path<BookId>,
@@ -55,6 +61,12 @@ pub async fn checkout_book(
         )
     )
 )]
+#[tracing::instrument(
+    skip(user, registry),
+    fields(
+        user_id = %user.user.id.to_string()
+    )
+)]
 pub async fn return_book(
     user: AuthorizedUser,
     Path((book_id, checkout_id)): Path<(BookId, CheckoutId)>,
@@ -79,6 +91,12 @@ pub async fn return_book(
         )
     )
 )]
+#[tracing::instrument(
+    skip(_user, registry),
+    fields(
+        user_id = %_user.user.id.to_string()
+    )
+)]
 pub async fn show_checked_out_list(
     _user: AuthorizedUser,
     State(registry): State<SharedAppRegistry>,
@@ -101,6 +119,12 @@ pub async fn show_checked_out_list(
         params(
             ("book_id" = Uuid, Path, description = "Book ID")
         )
+    )
+)]
+#[tracing::instrument(
+    skip(_user, registry),
+    fields(
+        user_id = %_user.user.id.to_string()
     )
 )]
 pub async fn checkout_history(

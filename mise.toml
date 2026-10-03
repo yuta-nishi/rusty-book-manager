@@ -27,8 +27,8 @@ PGPASSWORD = "passwd"
 PGDATABASE = "app"
 
 [tasks.up]
-description = "Start PostgreSQL and Redis"
-run = "docker compose up -d postgres redis"
+description = "Start PostgreSQL, Redis and Jaeger"
+run = "docker compose up -d postgres redis jaeger"
 
 [tasks.down]
 description = "Stop containers"
