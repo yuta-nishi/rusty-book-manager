@@ -1,11 +1,14 @@
 use std::sync::Arc;
 
+mod helper;
+
 use axum::{body::Body, http::Request, http::StatusCode, response::Response};
 use rstest::rstest;
+use serde::de::DeserializeOwned;
 use tower::ServiceExt;
 
-use crate::helper::{RequestBuilderExt, deserialize_json, fixture, make_router, v1};
 use api::model::book::BookResponse;
+use helper::{RequestBuilderExt, fixture, make_router, v1};
 use kernel::{
     model::{
         book::{Book, Checkout},
@@ -58,6 +61,18 @@ async fn get_book(fixture: MockAppRegistry, book_id: BookId) -> anyhow::Result<R
         .body(Body::empty())?;
 
     Ok(app.oneshot(req).await?)
+}
+
+async fn deserialize_json<T: DeserializeOwned>(response: Response) -> anyhow::Result<T> {
+    use tokio_stream::StreamExt;
+
+    let mut bytes = Vec::new();
+    let mut stream = response.into_body().into_data_stream();
+    while let Ok(Some(chunk)) = stream.try_next().await {
+        bytes.extend_from_slice(&chunk[..]);
+    }
+
+    Ok(serde_json::from_slice(&bytes)?)
 }
 
 mod register_book {

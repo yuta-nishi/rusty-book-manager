@@ -1,14 +1,13 @@
 use std::sync::Arc;
 
 use api::routes::{auth, v1};
-use axum::{Router, http::request::Builder, response::Response};
+use axum::{Router, http::request::Builder};
 use kernel::{
     model::{auth::AccessToken, id::UserId, role::Role, user::User},
     repository::{auth::MockAuthRepository, user::MockUserRepository},
 };
 use registry::MockAppRegistry;
 use rstest::fixture;
-use serde::de::DeserializeOwned;
 
 pub fn v1(endpoint: &str) -> String {
     format!("/api/v1{endpoint}")
@@ -21,10 +20,6 @@ pub fn make_router(registry: MockAppRegistry) -> Router {
         .with_state(Arc::new(registry))
 }
 
-// Every handler behind AuthorizedUser needs the token check and the user lookup
-// to answer, so they are stubbed here rather than in each test. The user
-// repository answers the admin-only endpoints too, so tests only assert what the
-// handler does with the answer.
 #[fixture]
 pub fn fixture(#[default(Role::User)] role: Role) -> MockAppRegistry {
     let mut registry = MockAppRegistry::new();
@@ -79,18 +74,4 @@ impl RequestBuilderExt for Builder {
     fn application_json(self) -> Builder {
         self.header("Content-Type", "application/json")
     }
-}
-
-pub async fn deserialize_json<T: DeserializeOwned>(
-    response: Response,
-) -> anyhow::Result<T> {
-    use tokio_stream::StreamExt;
-
-    let mut bytes = Vec::new();
-    let mut stream = response.into_body().into_data_stream();
-    while let Ok(Some(chunk)) = stream.try_next().await {
-        bytes.extend_from_slice(&chunk[..]);
-    }
-
-    Ok(serde_json::from_slice(&bytes)?)
 }
