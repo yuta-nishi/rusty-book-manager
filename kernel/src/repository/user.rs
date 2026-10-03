@@ -8,6 +8,7 @@ use crate::model::{
 use async_trait::async_trait;
 use shared::error::AppResult;
 
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait UserRepository: Send + Sync {
     async fn find_current_user(&self, current_user_id: UserId)

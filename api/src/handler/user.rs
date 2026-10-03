@@ -16,7 +16,7 @@ use axum::{
 };
 use garde::Validate;
 use kernel::model::{id::UserId, user::event::DeleteUser};
-use registry::AppRegistry;
+use registry::SharedAppRegistry;
 use shared::error::{AppError, AppResult};
 
 #[cfg_attr(
@@ -33,7 +33,7 @@ use shared::error::{AppError, AppResult};
 )]
 pub async fn register_user(
     user: AuthorizedUser,
-    State(registry): State<AppRegistry>,
+    State(registry): State<SharedAppRegistry>,
     Json(req): Json<CreateUserRequest>,
 ) -> AppResult<Json<UserResponse>> {
     // Only users with the Admin role can perform this operation.
@@ -59,7 +59,7 @@ pub async fn register_user(
 )]
 pub async fn list_users(
     _user: AuthorizedUser,
-    State(registry): State<AppRegistry>,
+    State(registry): State<SharedAppRegistry>,
 ) -> AppResult<Json<UsersResponse>> {
     let items = registry
         .user_repository()
@@ -89,7 +89,7 @@ pub async fn list_users(
 pub async fn delete_user(
     user: AuthorizedUser,
     Path(user_id): Path<UserId>,
-    State(registry): State<AppRegistry>,
+    State(registry): State<SharedAppRegistry>,
 ) -> AppResult<StatusCode> {
     // Only users with the Admin role can perform this operation.
     if !user.is_admin() {
@@ -122,7 +122,7 @@ pub async fn delete_user(
 pub async fn change_role(
     user: AuthorizedUser,
     Path(user_id): Path<UserId>,
-    State(registry): State<AppRegistry>,
+    State(registry): State<SharedAppRegistry>,
     Json(req): Json<UpdateUserRoleRequest>,
 ) -> AppResult<StatusCode> {
     // Only users with the Admin role can perform this operation.
@@ -165,7 +165,7 @@ pub async fn get_current_user(user: AuthorizedUser) -> Json<UserResponse> {
 )]
 pub async fn change_password(
     user: AuthorizedUser,
-    State(registry): State<AppRegistry>,
+    State(registry): State<SharedAppRegistry>,
     Json(req): Json<UpdateUserPasswordRequest>,
 ) -> AppResult<StatusCode> {
     req.validate()?;
@@ -189,7 +189,7 @@ pub async fn change_password(
 )]
 pub async fn get_checkouts(
     user: AuthorizedUser,
-    State(registry): State<AppRegistry>,
+    State(registry): State<SharedAppRegistry>,
 ) -> AppResult<Json<CheckoutsResponse>> {
     registry
         .checkout_repository()

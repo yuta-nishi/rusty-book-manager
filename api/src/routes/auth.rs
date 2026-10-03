@@ -1,8 +1,8 @@
 use crate::handler::auth::{login, logout};
 use axum::{Router, routing::post};
-use registry::AppRegistry;
+use registry::SharedAppRegistry;
 
-pub fn routes() -> Router<AppRegistry> {
+pub fn routes() -> Router<SharedAppRegistry> {
     let auth_router = Router::new()
         .route("/login", post(login))
         .route("/logout", post(logout));

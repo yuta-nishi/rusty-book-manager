@@ -8,7 +8,7 @@ use kernel::model::{
     checkout::event::{CreateCheckout, UpdateReturned},
     id::{BookId, CheckoutId},
 };
-use registry::AppRegistry;
+use registry::SharedAppRegistry;
 use shared::error::AppResult;
 
 #[cfg_attr(
@@ -28,7 +28,7 @@ use shared::error::AppResult;
 pub async fn checkout_book(
     user: AuthorizedUser,
     Path(book_id): Path<BookId>,
-    State(registry): State<AppRegistry>,
+    State(registry): State<SharedAppRegistry>,
 ) -> AppResult<StatusCode> {
     let create_checkout_history =
         CreateCheckout::new(book_id, user.id(), chrono::Utc::now());
@@ -58,7 +58,7 @@ pub async fn checkout_book(
 pub async fn return_book(
     user: AuthorizedUser,
     Path((book_id, checkout_id)): Path<(BookId, CheckoutId)>,
-    State(registry): State<AppRegistry>,
+    State(registry): State<SharedAppRegistry>,
 ) -> AppResult<StatusCode> {
     let update_returned =
         UpdateReturned::new(checkout_id, book_id, user.id(), chrono::Utc::now());
@@ -81,7 +81,7 @@ pub async fn return_book(
 )]
 pub async fn show_checked_out_list(
     _user: AuthorizedUser,
-    State(registry): State<AppRegistry>,
+    State(registry): State<SharedAppRegistry>,
 ) -> AppResult<Json<CheckoutsResponse>> {
     registry
         .checkout_repository()
@@ -106,7 +106,7 @@ pub async fn show_checked_out_list(
 pub async fn checkout_history(
     _user: AuthorizedUser,
     Path(book_id): Path<BookId>,
-    State(registry): State<AppRegistry>,
+    State(registry): State<SharedAppRegistry>,
 ) -> AppResult<Json<CheckoutsResponse>> {
     registry
         .checkout_repository()

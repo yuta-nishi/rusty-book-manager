@@ -8,7 +8,7 @@ use kernel::model::auth::AccessToken;
 use kernel::model::id::UserId;
 use kernel::model::role::Role;
 use kernel::model::user::User;
-use registry::AppRegistry;
+use registry::SharedAppRegistry;
 use shared::error::AppError;
 
 // Struct passed to handlers after request preprocessing.
@@ -26,13 +26,13 @@ impl AuthorizedUser {
     }
 }
 
-impl FromRequestParts<AppRegistry> for AuthorizedUser {
+impl FromRequestParts<SharedAppRegistry> for AuthorizedUser {
     type Rejection = AppError;
 
     // Called when AuthorizedUser is added as a handler argument.
     async fn from_request_parts(
         parts: &mut Parts,
-        registry: &AppRegistry,
+        registry: &SharedAppRegistry,
     ) -> Result<Self, Self::Rejection> {
         // Extract the access token from the HTTP header.
         let TypedHeader(Authorization(bearer)) = parts

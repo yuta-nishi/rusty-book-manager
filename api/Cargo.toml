@@ -16,3 +16,16 @@ utoipa.workspace = true
 kernel.workspace = true
 registry.workspace = true
 shared.workspace = true
+
+[dev-dependencies]
+anyhow.workspace = true
+rstest.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tokio-stream.workspace = true
+tower.workspace = true
+
+# The API tests inject mocks, so the test build needs the mock feature. Listing
+# them here keeps it out of the normal build.
+kernel = { workspace = true, features = ["mock"] }
+registry = { workspace = true, features = ["mock"] }
