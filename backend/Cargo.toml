@@ -76,7 +76,6 @@ utoipa-redoc.workspace = true
 utoipa-swagger-ui.workspace = true
 
 api.workspace = true
-domain.workspace = true
 infra.workspace = true
 composition.workspace = true
 shared.workspace = true

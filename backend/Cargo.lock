@@ -1885,7 +1885,6 @@ dependencies = [
  "api",
  "axum",
  "composition",
- "domain",
  "infra",
  "opentelemetry",
  "opentelemetry-otlp",
