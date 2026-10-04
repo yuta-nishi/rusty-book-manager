@@ -27,6 +27,12 @@ use shared::error::{AppError, AppResult};
         )
     )
 )]
+#[tracing::instrument(
+    skip(user, registry),
+    fields(
+        user_id = %user.user.id.to_string()
+    )
+)]
 pub async fn register_book(
     user: AuthorizedUser,
     State(registry): State<SharedAppRegistry>,
@@ -56,6 +62,12 @@ pub async fn register_book(
         )
     )
 )]
+#[tracing::instrument(
+    skip(_user, registry),
+    fields(
+        user_id = %_user.user.id.to_string()
+    )
+)]
 pub async fn show_book_list(
     _user: AuthorizedUser,
     Query(query): Query<BooksQuery>,
@@ -82,6 +94,12 @@ pub async fn show_book_list(
         params(
             ("book_id" = Uuid, Path, description = "Book ID")
         )
+    )
+)]
+#[tracing::instrument(
+    skip(_user, registry),
+    fields(
+        user_id = %_user.user.id.to_string()
     )
 )]
 pub async fn show_book(
@@ -116,6 +134,12 @@ pub async fn show_book(
         )
     )
 )]
+#[tracing::instrument(
+    skip(user, registry),
+    fields(
+        user_id = %user.user.id.to_string()
+    )
+)]
 pub async fn update_book(
     user: AuthorizedUser,
     Path(book_id): Path<BookId>,
@@ -143,6 +167,12 @@ pub async fn update_book(
         params(
             ("book_id" = Uuid, Path, description = "Book ID")
         )
+    )
+)]
+#[tracing::instrument(
+    skip(user, registry),
+    fields(
+        user_id = %user.user.id.to_string()
     )
 )]
 pub async fn delete_book(

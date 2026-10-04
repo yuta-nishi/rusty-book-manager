@@ -19,6 +19,12 @@ use shared::error::AppResult;
         )
     )
 )]
+#[tracing::instrument(
+    skip(registry, req),
+    fields(
+        email_address = %req.email
+    )
+)]
 pub async fn login(
     State(registry): State<SharedAppRegistry>,
     Json(req): Json<LoginRequest>,
@@ -45,6 +51,13 @@ pub async fn login(
         responses(
             (status = 204, description = "Logged out successfully.")
         )
+    )
+)]
+#[tracing::instrument(
+    skip(registry, user),
+    fields(
+        user_id = %user.user.id.to_string(),
+        user_name = %user.user.name
     )
 )]
 pub async fn logout(

@@ -31,6 +31,12 @@ use shared::error::{AppError, AppResult};
         )
     )
 )]
+#[tracing::instrument(
+    skip(user, registry, req),
+    fields(
+        user_id = %user.user.id.to_string()
+    )
+)]
 pub async fn register_user(
     user: AuthorizedUser,
     State(registry): State<SharedAppRegistry>,
@@ -55,6 +61,12 @@ pub async fn register_user(
             (status = 200, description = "The user list was returned.", body = UsersResponse),
             (status = 500, description = "An internal server error occurred.")
         )
+    )
+)]
+#[tracing::instrument(
+    skip(_user, registry),
+    fields(
+        user_id = %_user.user.id.to_string()
     )
 )]
 pub async fn list_users(
@@ -84,6 +96,12 @@ pub async fn list_users(
         params(
             ("user_id" = Uuid, Path, description = "User ID")
         )
+    )
+)]
+#[tracing::instrument(
+    skip(user, registry),
+    fields(
+        user_id = %user.user.id.to_string()
     )
 )]
 pub async fn delete_user(
@@ -119,6 +137,12 @@ pub async fn delete_user(
         )
     )
 )]
+#[tracing::instrument(
+    skip(user, registry, req),
+    fields(
+        user_id = %user.user.id.to_string()
+    )
+)]
 pub async fn change_role(
     user: AuthorizedUser,
     Path(user_id): Path<UserId>,
@@ -147,6 +171,13 @@ pub async fn change_role(
         )
     )
 )]
+#[tracing::instrument(
+    skip(user),
+    fields(
+        user_id = %user.user.id.to_string(),
+        user_name = %user.user.name
+    )
+)]
 pub async fn get_current_user(user: AuthorizedUser) -> Json<UserResponse> {
     Json(UserResponse::from(user.user))
 }
@@ -161,6 +192,12 @@ pub async fn get_current_user(user: AuthorizedUser) -> Json<UserResponse> {
             (status = 400, description = "The request was invalid."),
             (status = 500, description = "An internal server error occurred.")
         )
+    )
+)]
+#[tracing::instrument(
+    skip(user, registry, req),
+    fields(
+        user_id = %user.user.id.to_string()
     )
 )]
 pub async fn change_password(
@@ -185,6 +222,12 @@ pub async fn change_password(
         responses(
             (status = 200, description = "The checkout list was returned.", body = CheckoutsResponse)
         )
+    )
+)]
+#[tracing::instrument(
+    skip(user, registry),
+    fields(
+        user_id = %user.user.id.to_string()
     )
 )]
 pub async fn get_checkouts(

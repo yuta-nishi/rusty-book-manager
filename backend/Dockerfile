@@ -1,5 +1,10 @@
-FROM rust:1.87-slim-bookworm AS builder
+FROM rust:1.99-slim-bookworm AS builder
 WORKDIR /app
+
+# The utoipa-swagger-ui build script downloads the UI assets with curl.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
