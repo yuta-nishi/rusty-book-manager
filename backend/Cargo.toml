@@ -78,3 +78,7 @@ api.workspace = true
 infra.workspace = true
 composition.workspace = true
 shared.workspace = true
+
+# Dependencies are the bulk of the link; skip their debug info.
+[profile.dev.package."*"]
+debug = false
