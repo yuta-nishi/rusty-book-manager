@@ -8,6 +8,8 @@ services:
       network: host
     ports:
       - 8080:${PORT}
+    # SIGTERM → SIGKILL: covers the drain plus the 5 s span flush.
+    stop_grace_period: 15s
     environment:
       HOST: ${HOST}
       PORT: ${PORT}

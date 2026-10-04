@@ -1,5 +1,6 @@
 use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::Arc;
+use std::time::Duration;
 
 use anyhow::Result;
 use api::routes::{auth, v1};
@@ -63,7 +64,11 @@ fn init_logger() -> Result<SdkTracerProvider> {
     let exporter = opentelemetry_otlp::SpanExporter::builder()
         .with_tonic()
         .with_endpoint(endpoint)
+        // Cap one export so the flush (5 s) and `stop_grace_period` (15 s)
+        // always cover it. The OTLP default is 10 s.
+        .with_timeout(Duration::from_secs(3))
         .build()?;
+    // Batches go out every 5 s (the SDK default).
     let tracer_provider = SdkTracerProvider::builder()
         .with_batch_exporter(exporter)
         .with_resource(
@@ -143,8 +148,7 @@ async fn bootstrap(tracer_provider: SdkTracerProvider) -> Result<()> {
             )
         });
 
-    // Every in-flight request has finished by now, so flush the spans they
-    // produced as well before the process exits.
+    // Drain is done; flush with a 5 s timeout.
     if let Err(e) = tracer_provider.shutdown() {
         tracing::error!(error = %e, "failed to shut down the tracer provider");
     }
