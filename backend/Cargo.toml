@@ -42,7 +42,7 @@ tokio = { version = "1.49.0", features = ["full"] }
 tokio-stream = "0.1.19"
 strum = { version = "0.28.0", features = ["derive"] }
 tower = { version = "0.5.3", features = ["util"] }
-tower-http = { version = "0.7.1", features = ["trace"] }
+tower-http = { version = "0.7.1", features = ["cors", "trace"] }
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
 utoipa = { version = "6.0.0", features = ["axum_extras", "uuid", "chrono"] }
