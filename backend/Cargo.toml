@@ -18,7 +18,7 @@ license = "MIT"
 [workspace.dependencies]
 async-trait = "0.1.92"
 anyhow = "1.0.100"
-axum = { version = "0.8.8", features = ["macros"] }
+axum = { version = "0.8.8" }
 axum-extra = { version = "0.12.6", features = ["typed-header"] }
 bcrypt = "0.19.3"
 chrono = { version = "0.4.45", default-features = false, features = ["serde"] }
@@ -38,10 +38,9 @@ sqlx = { version = "0.8.6", features = [
   "chrono",
   "macros",
   "postgres",
-  "migrate",
 ] }
 thiserror = "2.0.17"
-tokio = { version = "1.49.0", features = ["full"] }
+tokio = { version = "1.49.0", features = ["rt-multi-thread", "macros", "net", "signal"] }
 tokio-stream = "0.1.19"
 strum = { version = "0.28.0", features = ["derive"] }
 tower = { version = "0.5.3", features = ["util"] }
