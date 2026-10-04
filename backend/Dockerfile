@@ -3,8 +3,11 @@ WORKDIR /app
 
 # The utoipa-swagger-ui build script downloads the UI assets with curl.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y --no-install-recommends curl mold \
     && rm -rf /var/lib/apt/lists/*
+
+# mold links faster than GNU ld.
+ENV RUSTFLAGS="-C link-arg=-fuse-ld=mold"
 
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}

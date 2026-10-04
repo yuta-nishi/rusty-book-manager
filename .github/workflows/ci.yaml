@@ -27,5 +27,9 @@ jobs:
           tool: nextest
       - name: Install sqlx-cli
         run: cargo install sqlx-cli --no-default-features --features rustls,postgres --locked
+      - name: Install mold
+        run: sudo apt-get update && sudo apt-get install -y mold
       - name: Run checks
         run: mise run ci
+        env:
+          RUSTFLAGS: -C link-arg=-fuse-ld=mold

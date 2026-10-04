@@ -7,6 +7,12 @@ RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
+# mold links faster than GNU ld. RUSTFLAGS is set before the first build so the
+# cooked dependencies keep the same fingerprint.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends mold \
+    && rm -rf /var/lib/apt/lists/*
+ENV RUSTFLAGS="-C link-arg=-fuse-ld=mold"
 # Cook the dependencies first so that only our crates are rebuilt on a source change.
 RUN cargo chef cook --release --recipe-path recipe.json
 
