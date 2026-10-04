@@ -1,19 +1,28 @@
-FROM rust:1.99-slim-bookworm AS builder
+FROM lukemathwalker/cargo-chef:latest-rust-1.99-slim-bookworm AS chef
 WORKDIR /app
 
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+# mold links faster than GNU ld. RUSTFLAGS is set before the first build so the
+# cooked dependencies keep the same fingerprint.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl mold \
     && rm -rf /var/lib/apt/lists/*
-
-# mold links faster than GNU ld.
 ENV RUSTFLAGS="-C link-arg=-fuse-ld=mold"
+# Cook the dependencies first so that only our crates are rebuilt on a source change.
+RUN cargo chef cook --release --recipe-path recipe.json
 
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
+
 COPY . .
 RUN cargo build --release
 
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim AS runner
 WORKDIR /app
 
 RUN adduser book && chown -R book /app
