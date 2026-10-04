@@ -47,19 +47,12 @@ fn cors() -> CorsLayer {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let tracer_provider = init_logger()?;
+    let tracer_provider = build_tracer_provider()?;
+    init_logger(&tracer_provider)?;
     bootstrap(tracer_provider).await
 }
 
-fn init_logger() -> Result<SdkTracerProvider> {
-    let log_level = match which() {
-        Environment::Development => "debug",
-        Environment::Production => "info",
-    };
-
-    let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| log_level.into());
-
+fn build_tracer_provider() -> Result<SdkTracerProvider> {
     let endpoint = std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT")?;
     let exporter = opentelemetry_otlp::SpanExporter::builder()
         .with_tonic()
@@ -68,15 +61,26 @@ fn init_logger() -> Result<SdkTracerProvider> {
         // always cover it. The OTLP default is 10 s.
         .with_timeout(Duration::from_secs(3))
         .build()?;
+
     // Batches go out every 5 s (the SDK default).
-    let tracer_provider = SdkTracerProvider::builder()
+    Ok(SdkTracerProvider::builder()
         .with_batch_exporter(exporter)
         .with_resource(
             Resource::builder()
                 .with_service_name("book-manager")
                 .build(),
         )
-        .build();
+        .build())
+}
+
+fn init_logger(tracer_provider: &SdkTracerProvider) -> Result<()> {
+    let log_level = match which() {
+        Environment::Development => "debug",
+        Environment::Production => "info",
+    };
+
+    let env_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| log_level.into());
 
     // JSON logs are for a log collector; they are unreadable in a terminal.
     let format: Box<dyn Layer<tracing_subscriber::Registry> + Send + Sync> = match which()
@@ -97,7 +101,7 @@ fn init_logger() -> Result<SdkTracerProvider> {
         .with(tracing_opentelemetry::layer().with_tracer(tracer))
         .try_init()?;
 
-    Ok(tracer_provider)
+    Ok(())
 }
 
 async fn bootstrap(tracer_provider: SdkTracerProvider) -> Result<()> {
