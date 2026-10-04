@@ -131,8 +131,8 @@ async fn bootstrap(tracer_provider: SdkTracerProvider) -> Result<()> {
     let listener = TcpListener::bind(addr).await?;
     tracing::info!("Listening on http://{addr}");
 
-    axum::serve(listener, app)
-        .with_graceful_shutdown(shutdown_signal(tracer_provider))
+    let result = axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
         .await
         .context("Unexpected error happened in server")
         .inspect_err(|e| {
@@ -141,10 +141,18 @@ async fn bootstrap(tracer_provider: SdkTracerProvider) -> Result<()> {
                 error.message = %e,
                 "Unexpected error"
             )
-        })
+        });
+
+    // Every in-flight request has finished by now, so flush the spans they
+    // produced as well before the process exits.
+    if let Err(e) = tracer_provider.shutdown() {
+        tracing::error!(error = %e, "failed to shut down the tracer provider");
+    }
+
+    result
 }
 
-async fn shutdown_signal(tracer_provider: SdkTracerProvider) {
+async fn shutdown_signal() {
     let ctrl_c = async {
         tokio::signal::ctrl_c()
             .await
@@ -165,10 +173,5 @@ async fn shutdown_signal(tracer_provider: SdkTracerProvider) {
     tokio::select! {
         _ = ctrl_c => tracing::info!("received ctrl-c"),
         _ = terminate => tracing::info!("received SIGTERM"),
-    }
-
-    // The batch processor still holds spans; flush them before exiting.
-    if let Err(e) = tracer_provider.shutdown() {
-        tracing::error!(error = %e, "failed to shut down the tracer provider");
     }
 }
