@@ -1,4 +1,9 @@
+[tools]
+node = "24"
+
 [env]
+# corepack: fetch the pnpm version pinned in frontend/package.json without prompting
+COREPACK_ENABLE_DOWNLOAD_PROMPT = "0"
 # docker compose 用
 HOST = "0.0.0.0"
 PORT = "8080"
@@ -26,6 +31,8 @@ PGUSER = "app"
 PGPASSWORD = "passwd"
 PGDATABASE = "app"
 
+# --- 共有インフラ (docker compose) --------------------------------------------
+
 [tasks.up]
 description = "Start PostgreSQL, Redis and Jaeger"
 run = "docker compose up -d postgres redis jaeger"
@@ -42,17 +49,19 @@ run = "docker compose down -v"
 description = "Follow container logs"
 run = "docker compose logs -f"
 
-[tasks.build]
-description = "Build"
+# --- バックエンド --------------------------------------------------------------
+
+[tasks.back-build]
+description = "Build the backend"
 dir = "backend"
 run = "cargo build"
 
-[tasks.check]
-description = "Type check"
+[tasks.back-check]
+description = "Type check the backend"
 dir = "backend"
 run = "cargo check --all --all-targets"
 
-[tasks.migrate]
+[tasks.back-migrate]
 description = "Apply database migrations (waits for PostgreSQL)"
 dir = "backend"
 run = """
@@ -61,75 +70,139 @@ until sqlx migrate run --source infra/migrations; do
 done
 """
 
-[tasks.seed]
+[tasks.back-seed]
 description = "Insert initial data"
 dir = "backend"
 run = "psql \"$DATABASE_URL\" -f data/initial_setup.sql"
 
-[tasks.run]
-description = "Start PostgreSQL, migrate, then run the app"
-depends = ["up", "migrate"]
+[tasks.back-run]
+description = "Start PostgreSQL, migrate, then run the API"
+depends = ["up", "back-migrate"]
 dir = "backend"
 run = "cargo run"
 
-[tasks.run-release]
-description = "Start PostgreSQL, migrate, then run the app in release mode"
-depends = ["up", "migrate"]
+[tasks.back-run-release]
+description = "Start PostgreSQL, migrate, then run the API in release mode"
+depends = ["up", "back-migrate"]
 dir = "backend"
 run = "cargo run --release"
 
-[tasks.run-in-docker]
-description = "Build the app image and run it in Docker"
-depends = ["up", "migrate"]
+[tasks.back-run-in-docker]
+description = "Build the API image and run it in Docker"
+depends = ["up", "back-migrate"]
 run = "docker compose up -d --build app"
 
-[tasks.test]
-description = "Run tests"
+[tasks.back-test]
+description = "Run backend tests"
 dir = "backend"
 run = "cargo nextest run --workspace --status-level all --test-threads=num-cpus --no-tests=pass"
 
-[tasks.fmt]
-description = "Format"
+[tasks.back-fmt]
+description = "Format the backend"
 dir = "backend"
 run = "cargo fmt --all"
 
-[tasks.fmt-check]
-description = "Check formatting"
+[tasks.back-fmt-check]
+description = "Check backend formatting"
 dir = "backend"
 run = "cargo fmt --all -- --check"
 
-[tasks.clippy]
-description = "Lint"
+[tasks.back-clippy]
+description = "Lint the backend"
 dir = "backend"
 run = "cargo clippy --all --all-targets"
 
-[tasks.lint]
-description = "Lint with warnings denied"
+[tasks.back-lint]
+description = "Lint the backend with warnings denied"
 dir = "backend"
 run = "cargo clippy --all --all-targets -- -D warnings"
 
-[tasks.ci]
-description = "Run all CI checks"
-run = [
-  { task = "up" },
-  { task = "migrate" },
-  { task = "fmt-check" },
-  { task = "lint" },
-  { task = "test" },
-]
-
-[tasks.db]
+[tasks.back-db]
 description = "Open psql"
 run = "psql"
 
-[tasks.redis]
+[tasks.back-redis]
 description = "Open redis-cli"
 run = "redis-cli"
 
-[tasks.create-hash]
+[tasks.back-create-hash]
 description = "Generate a bcrypt hash for a password"
 dir = "backend"
 run = "rust-script scripts/create-hash.rs"
+
+[tasks.back-ci]
+description = "Run all backend CI checks"
+run = [
+  { task = "up" },
+  { task = "back-migrate" },
+  { task = "back-fmt-check" },
+  { task = "back-lint" },
+  { task = "back-test" },
+]
+
+# --- フロントエンド ------------------------------------------------------------
+
+[tasks.front-install]
+description = "Install frontend dependencies"
+dir = "frontend"
+run = "pnpm install"
+
+[tasks.front-dev]
+description = "Start the frontend dev server (http://localhost:5173)"
+dir = "frontend"
+run = "pnpm dev"
+
+[tasks.front-build]
+description = "Build the frontend"
+dir = "frontend"
+run = "pnpm build"
+
+[tasks.front-serve]
+description = "Build and serve the frontend (adapter-node)"
+depends = ["front-build"]
+dir = "frontend"
+# PORT is set to 8080 for the backend above, and adapter-node reads the same
+# variable, so the frontend server needs its own.
+run = "PORT=3000 node build"
+
+[tasks.front-fmt]
+description = "Format the frontend"
+dir = "frontend"
+run = "pnpm fmt"
+
+[tasks.front-lint]
+description = "Lint the frontend"
+dir = "frontend"
+run = "pnpm lint"
+
+[tasks.front-typecheck]
+description = "Type check the frontend (svelte-check)"
+dir = "frontend"
+run = "pnpm typecheck"
+
+[tasks.front-check]
+description = "Format, lint and type check the frontend"
+dir = "frontend"
+run = "pnpm check && pnpm typecheck"
+
+[tasks.front-test]
+description = "Run frontend tests"
+dir = "frontend"
+run = "pnpm test"
+
+[tasks.front-ci]
+description = "Run all frontend CI checks"
+run = [
+  { task = "front-check" },
+  { task = "front-test" },
+  { task = "front-build" },
+]
+
+# --- リポジトリ全体 ------------------------------------------------------------
+
+[tasks.ci]
+description = "Run all CI checks (backend + frontend)"
+run = [{ task = "back-ci" }, { task = "front-ci" }]
 
 [tasks.actions-lint]
 description = "Lint GitHub Actions workflows"

@@ -30,6 +30,6 @@ jobs:
       - name: Install mold
         run: sudo apt-get update && sudo apt-get install -y mold
       - name: Run checks
-        run: mise run ci
+        run: mise run back-ci
         env:
           RUSTFLAGS: -C link-arg=-fuse-ld=mold
