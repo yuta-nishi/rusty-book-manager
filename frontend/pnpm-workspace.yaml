@@ -1,0 +1,12 @@
+# Vite+ ships its own Vite core, so every package resolves `vite` to it.
+# See https://viteplus.dev/guide/local-cli
+overrides:
+  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
+  # Keep the whole project on the Vitest version bundled with vite-plus.
+  vitest: 5.0.1
+
+peerDependencyRules:
+  allowedVersions:
+    # Vite+ core reports its own version (1.0.0), not Vite 8's, so packages
+    # that peer on `vite@^8` (SvelteKit) need this allowance.
+    vite: '*'

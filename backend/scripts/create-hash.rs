@@ -5,7 +5,7 @@
 fn main() {
     let password = std::env::args()
         .nth(1)
-        .expect("usage: mise run create-hash <password>");
+        .expect("usage: mise run back-create-hash <password>");
     let hashed = bcrypt::hash(password, bcrypt::DEFAULT_COST).unwrap();
     println!("{hashed}");
 }
