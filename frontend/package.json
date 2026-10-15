@@ -1,0 +1,41 @@
+{
+	"name": "frontend",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"imports": {
+		"#lib/*": "./src/lib/*"
+	},
+	"scripts": {
+		"dev": "vp dev",
+		"build": "vp build",
+		"preview": "vp preview",
+		"check": "vp check",
+		"check:fix": "vp check --fix",
+		"lint": "vp lint",
+		"fmt": "vp fmt",
+		"fmt:check": "vp fmt --check",
+		"typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"test": "vp test",
+		"test:watch": "vp test watch",
+		"prepare": "svelte-kit sync || echo ''"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-node": "^6.0.0",
+		"@sveltejs/kit": "^3.0.0",
+		"@sveltejs/vite-plugin-svelte": "^7.2.0",
+		"@testing-library/jest-dom": "^7.0.1",
+		"@testing-library/svelte": "^5.4.2",
+		"@types/node": "^26.6.4",
+		"jsdom": "^30.1.2",
+		"svelte": "^5.57.1",
+		"svelte-check": "^4.6.0",
+		"typescript": "^6.0.3",
+		"vite-plus": "1.0.0",
+		"vitest": "5.0.1"
+	},
+	"engines": {
+		"node": ">=22.17.0"
+	},
+	"packageManager": "pnpm@12.9.1"
+}
